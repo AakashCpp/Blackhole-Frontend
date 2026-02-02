@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ReportSceleton from "./components/Sceletons/ReportSceleton";
+import ReportOverview from "./components/ReportOverview";
 import "./App.css";
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
   return (
     <>
       <div className="bg-zinc-950 h-screen w-screen text-white flex items-center justify-center p-20">
-        <ReportSceleton></ReportSceleton>
+        <ReportOverview />
       </div>
     </>
   );
