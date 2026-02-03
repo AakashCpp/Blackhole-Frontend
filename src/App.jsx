@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ReportOverview from "./components/ReportOverview";
+import ScanRes from "./pages/ScanRes.jsx";
 import "./App.css";
 
 function App() {
@@ -11,8 +11,8 @@ function App() {
 
   return (
     <>
-      <div className="bg-zinc-950 h-screen w-screen text-white flex items-center justify-center p-20">
-        <ReportOverview />
+      <div className="bg-zinc-950 min-h-screen w-screen text-white p-20">
+        <ScanRes></ScanRes>
       </div>
     </>
   );
