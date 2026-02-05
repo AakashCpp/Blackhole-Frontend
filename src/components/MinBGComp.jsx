@@ -14,7 +14,7 @@ const CMD = [
   "tail -f /var/log/auth.log",
   "nmap -sS -sV -T4 192.168.1.1",
   "nmap -p- --min-rate=5000 10.0.0.5",
-  "sqlmap -u 'http://target/login.php?id=1' --batch",
+  "sqlmap -u 'http://target/login.php?id=1'",
   "find / -perm -4000 2>/dev/null",
   'grep -R "PRIVATE KEY" /var/www/',
   "tcpdump -i eth0",
