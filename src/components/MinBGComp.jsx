@@ -1,5 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 
+const TYPE_SPEED = 60; // typing speed
+const WAIT_TIME = 3000;
+const PROMPT = "root@sky:~#";
+const CMD = [
+  "whoami",
+  "uname -a",
+  "ip a",
+  "netstat -tulnp",
+  "ss -lntup",
+  "ps aux | grep root",
+  "cat /etc/passwd | head",
+  "tail -f /var/log/auth.log",
+  "nmap -sS -sV -T4 192.168.1.1",
+  "nmap -p- --min-rate=5000 10.0.0.5",
+  "sqlmap -u 'http://target/login.php?id=1' --batch",
+  "find / -perm -4000 2>/dev/null",
+  'grep -R "PRIVATE KEY" /var/www/',
+  "tcpdump -i eth0",
+  "iptables -L -n -v",
+  "journalctl -xe",
+];
+
 const COMMANDS = [
   // basic
   "whoami",
@@ -322,6 +344,42 @@ export const CThreatRadar = () => {
           />
         ) : null,
       )}
+    </div>
+  );
+};
+
+export const CLITerminal = () => {
+  const [cmdIndex, setCmdIndex] = useState(0);
+  const [text, setText] = useState("");
+  const [charIndex, setCharIndex] = useState(0);
+
+  useEffect(() => {
+    if (charIndex < CMD[cmdIndex].length) {
+      const timeout = setTimeout(() => {
+        setText((prev) => prev + CMD[cmdIndex][charIndex]);
+        setCharIndex((prev) => prev + 1);
+      }, TYPE_SPEED);
+
+      return () => clearTimeout(timeout);
+    } else {
+      // command finished → wait → reset → next command
+      const wait = setTimeout(() => {
+        setText("");
+        setCharIndex(0);
+        setCmdIndex((prev) => (prev + 1) % CMD.length);
+      }, WAIT_TIME);
+
+      return () => clearTimeout(wait);
+    }
+  }, [charIndex, cmdIndex]);
+
+  return (
+    <div className="w-full h-full bg-black text-green-400 font-mono text-sm p-4 rounded-lg border border-green-500">
+      <div className="flex">
+        <span className="mr-1">{PROMPT}</span>
+        <span>{text}</span>
+        <span className="animate-pulse ml-1">█</span>
+      </div>
     </div>
   );
 };
