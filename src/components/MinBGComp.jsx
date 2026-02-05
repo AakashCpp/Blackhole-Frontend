@@ -53,6 +53,55 @@ const OUTPUTS = [
   "[✔] Operation completed",
 ];
 
+const CENTER = 50;
+const SPEED = 5; // radar speed
+const HIT_WINDOW = 6; // angle tolerance
+const BLINK_TIME = 1200; // ms
+
+// random bugs
+const bugs = Array.from({ length: 30 }).map(() => {
+  const x = Math.random() * 100;
+  const y = Math.random() * 100;
+
+  const dx = x - CENTER;
+  const dy = CENTER - y;
+
+  let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+  if (angle < 0) angle += 360;
+
+  return {
+    x,
+    y,
+    angle,
+    size: Math.random() * 4 + 2,
+  };
+});
+// random bug dots
+const bugss = Array.from({ length: 30 }).map(() => {
+  const x = Math.random() * 100;
+  const y = Math.random() * 100;
+
+  const dx = x - CENTER;
+  const dy = CENTER - y;
+
+  let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+  if (angle < 0) angle += 360;
+
+  return {
+    x,
+    y,
+    angle,
+    size: Math.random() * 4 + 2,
+    severity: ["low", "medium", "critical"][Math.floor(Math.random() * 3)],
+  };
+});
+
+const colorMap = {
+  low: "bg-green-400",
+  medium: "bg-yellow-400",
+  critical: "bg-red-500",
+};
+
 export const HackerBackground = ({ children }) => {
   const canvasRef = useRef(null);
 
@@ -155,6 +204,124 @@ export const HackerCLIBg = ({ children }) => {
 
       {/* Foreground content */}
       <div className="relative z-20">{children}</div>
+    </div>
+  );
+};
+
+export const ThreatRadar = () => {
+  return (
+    <div className="relative w-full h-full rounded-full bg-black overflow-hidden border border-green-500">
+      {/* Grid */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,255,0,0.15)_1px,transparent_1px)] bg-size-[20px_20px]" />
+
+      {/* Scan line */}
+      <div className="absolute inset-0 animate-radar-sweep">
+        <div className="w-full h-1 bg-linear-to-r from-transparent via-green-400 to-transparent opacity-60" />
+      </div>
+
+      {/* Bug dots */}
+      {bugss.map((bug, i) => (
+        <div
+          key={i}
+          className={`absolute rounded-full animate-blink ${colorMap[bug.severity]}`}
+          style={{
+            left: `${bug.x}%`,
+            top: `${bug.y}%`,
+            width: bug.size,
+            height: bug.size,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+export const CThreatRadar = () => {
+  const [scanAngle, setScanAngle] = useState(0);
+  const [activeDots, setActiveDots] = useState({});
+  const hitRegistry = useRef(new Set());
+
+  // rotate radar
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScanAngle((prev) => {
+        const next = (prev + SPEED) % 360;
+
+        // reset after full rotation
+        if (next < prev) {
+          hitRegistry.current.clear();
+        }
+
+        return next;
+      });
+    }, 20);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // detect hits
+  useEffect(() => {
+    bugs.forEach((bug, i) => {
+      const diff = Math.abs(scanAngle - bug.angle);
+      const isHit = diff < HIT_WINDOW || diff > 360 - HIT_WINDOW;
+
+      if (isHit && !hitRegistry.current.has(i)) {
+        hitRegistry.current.add(i);
+
+        setActiveDots((prev) => ({ ...prev, [i]: true }));
+
+        setTimeout(() => {
+          setActiveDots((prev) => {
+            const copy = { ...prev };
+            delete copy[i];
+            return copy;
+          });
+        }, BLINK_TIME);
+      }
+    });
+  }, [scanAngle]);
+
+  return (
+    <div className="relative w-full h-full rounded-full bg-black overflow-hidden border border-green-500">
+      {/* grid */}
+      <div
+        className="absolute inset-0 rounded-full 
+        bg-[radial-gradient(circle,rgba(0,255,0,0.15)_1px,transparent_1px)]
+        bg-size-[18px_18px]"
+      />
+
+      {/* radar arm */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div
+          className="absolute bottom-1/2 w-0.5 h-1/2
+          bg-linear-to-t from-green-400 to-transparent
+          origin-bottom"
+          style={{ transform: `rotate(${scanAngle}deg)` }}
+        />
+      </div>
+
+      {/* center dot */}
+      <div
+        className="absolute top-1/2 left-1/2 w-2 h-2 
+        bg-green-400 rounded-full -translate-x-1/2 -translate-y-1/2"
+      />
+
+      {/* RED bug blinks (only on hit) */}
+      {bugs.map((bug, i) =>
+        activeDots[i] ? (
+          <div
+            key={i}
+            className="absolute rounded-full bg-red-500"
+            style={{
+              left: `${bug.x}%`,
+              top: `${bug.y}%`,
+              width: bug.size,
+              height: bug.size,
+              boxShadow: "0 0 16px rgba(255,0,0,0.9)",
+            }}
+          />
+        ) : null,
+      )}
     </div>
   );
 };

@@ -18,3 +18,45 @@
 .animate-fade {
   animation: fade 2.5s ease-in-out infinite;
 }
+
+@keyframes radar-sweep {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.animate-radar-sweep {
+  animation: radar-sweep 2.5s linear infinite;
+}
+
+@keyframes radar-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar-rotate {
+  animation: radar-rotate 3s linear infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.6);
+  }
+}
+
+.animate-blink {
+  animation: blink 1.8s infinite;
+}

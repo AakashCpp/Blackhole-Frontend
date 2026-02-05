@@ -42,7 +42,7 @@ const HackerMask3D = () => {
       <directionalLight
         position={[4, 6, 4]}
         intensity={2.2}
-        color="#ffffff"
+        color="#e5e7eb"
         castShadow
       />
 
@@ -50,13 +50,13 @@ const HackerMask3D = () => {
       <directionalLight position={[-4, 2, 3]} intensity={0.8} />
 
       {/* Rim / separation */}
-      <directionalLight position={[0, 3, -5]} intensity={0.6} />
+      <directionalLight position={[0, 3, -5]} intensity={0.2} />
 
       <Suspense fallback={null}>
         <Mask />
       </Suspense>
 
-      <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1} />
+      <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={20} />
     </Canvas>
   );
 };
