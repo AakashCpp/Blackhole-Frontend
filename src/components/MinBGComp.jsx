@@ -174,7 +174,7 @@ export const HackerBackground = ({ children }) => {
       <canvas ref={canvasRef} className="absolute inset-0 z-0" />
 
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-black/60 z-10" />
+      <div className="absolute inset-0 bg-zinc-950 opacity-10 z-10" />
 
       {/* Foreground Content */}
       <div className="relative z-20">{children}</div>
@@ -212,7 +212,7 @@ export const HackerCLIBg = ({ children }) => {
       {/* CLI Background */}
       <div
         ref={containerRef}
-        className="absolute inset-0 z-0 p-4 font-mono text-sm text-green-400 overflow-hidden"
+        className="absolute inset-0 z-0 p-4 font-mono text-sm text-green-600 overflow-hidden"
       >
         {lines.map((line, i) => (
           <div key={i} className="whitespace-pre">
@@ -222,7 +222,7 @@ export const HackerCLIBg = ({ children }) => {
       </div>
 
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/60 z-10" />
+      <div className="absolute inset-0 bg-zinc-950 opacity-10 z-10" />
 
       {/* Foreground content */}
       <div className="relative z-20">{children}</div>

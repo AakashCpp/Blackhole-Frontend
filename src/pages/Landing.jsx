@@ -1,5 +1,12 @@
 import React from "react";
-import { HackerCLIBg } from "../components/MinBGComp";
+import {
+  HackerCLIBg,
+  HackerBackground,
+  CLITerminal,
+  CThreatRadar,
+  ThreatRadar,
+} from "../components/MinBGComp";
+import HelmetScene from "../components/HackerMaskScene";
 
 function Landing() {
   return (
@@ -21,29 +28,40 @@ function Landing() {
           </div>
           <div className="h-[65%] w-full relative flex justify-between gap-10">
             <div className="w-[50%] h-full flex flex-col gap-2">
-              <div className="bg-zinc-600 w-full h-[50%] border-2 border-green-800 overflow-hidden">
+              <div className="bg-zinc-600 w-full h-[50%] border-2 border-green-800 overflow-hidden rounded-sm">
                 <HackerCLIBg />
               </div>
-              <div className="bg-zinc-600 w-[75%] h-[50%] rounded-xl opacity-30 border-2 border-green-800 p-2">
-                2 radar screens
+              <div className="w-[75%] h-[50%] rounded-sm border-2 border-green-800 p-2 flex justify-center items-center">
+                <div className="w-[50%] h-full">
+                  <CThreatRadar />
+                </div>
+                <div className="w-[50%] h-full">
+                  <ThreatRadar />
+                </div>
               </div>
             </div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2  bg-red-300 h-90 w-95 z-40 opacity-50 flex items-center justify-center">
-              3d model wala
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-90 w-95 z-40 flex items-end justify-center">
+              <HelmetScene />
             </div>
             <div className="w-[50%] h-full flex flex-col items-center justify-evenly gap-2">
-              <div className="h-full w-full border-2 border-green-800 rounded-xl">
-                code rain effect
+              <div className="h-full w-full border-2 border-green-800 rounded-sm overflow-hidden">
+                <HackerBackground />
               </div>
               <div className="h-[40%] w-full flex flex-col items-end justify-evenly">
-                <div> dragon walk </div>
-                <div>terminal command</div>
+                <div>
+                  <img
+                    className="w-16 ml-4 float-right h-12"
+                    src="https://www.vikaspal.me/image/source.gif"
+                  />
+                </div>
+                <div className="h-12 w-[80%] flex items-center justify-center rounded-sm overflow-hidden">
+                  <CLITerminal />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="h-screen w-full bg-amber-700"></div>
     </>
   );
 }

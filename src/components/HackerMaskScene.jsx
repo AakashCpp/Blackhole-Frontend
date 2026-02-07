@@ -5,7 +5,7 @@ import { Suspense } from "react";
 function Helmet() {
   const { scene } = useGLTF("/models/game_ready_scifi_helmet.glb");
 
-  return <primitive object={scene} scale={1.2} position={[0, -0.3, 0]} />;
+  return <primitive object={scene} scale={0.01} position={[0, -0.3, 0]} />;
 }
 
 export default function HelmetScene() {
@@ -26,7 +26,12 @@ export default function HelmetScene() {
         <Helmet />
       </Suspense>
 
-      <OrbitControls />
+      <OrbitControls
+        autoRotate
+        autoRotateSpeed={1.2}
+        enableZoom={false}
+        enablePan={false}
+      />
     </Canvas>
   );
 }

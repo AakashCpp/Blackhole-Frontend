@@ -7,7 +7,7 @@ function App() {
     <>
       <div className="bg-zinc-950 min-h-screen w-screen text-white px-10">
         <Navbar></Navbar>
-        {/* <Landing></Landing> */}
+        <Landing></Landing>
       </div>
     </>
   );
