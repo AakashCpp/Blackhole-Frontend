@@ -27,11 +27,12 @@ function Landing() {
             </h1>
           </div>
           <div className="h-[65%] w-full relative flex justify-between gap-10">
-            <div className="w-[50%] h-full flex flex-col gap-2">
+            {/* first section */}
+            <div className="hidden w-[50%] h-full lg:flex flex-col gap-2 ">
               <div className="bg-zinc-600 w-full h-[50%] border-2 border-green-800 overflow-hidden rounded-sm">
                 <HackerCLIBg />
               </div>
-              <div className="w-[75%] h-[50%] rounded-sm border-2 border-green-800 p-2 flex justify-center items-center">
+              <div className="w-[75%] h-[50%] rounded-sm border-2 border-green-800 p-2 flex justify-center items-center gap-4">
                 <div className="w-[50%] h-full">
                   <CThreatRadar />
                 </div>
@@ -40,7 +41,7 @@ function Landing() {
                 </div>
               </div>
             </div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-90 w-95 z-40 flex items-end justify-center">
+            <div className="absolute top-0 lg:bottom-0 left-1/2 -translate-x-1/2 h-60 w-65 lg:h-90 lg:w-95 z-40 flex items-center lg:items-end justify-center">
               <HelmetScene />
             </div>
             <div className="w-[50%] h-full flex flex-col items-center justify-evenly gap-2">

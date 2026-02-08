@@ -1,0 +1,82 @@
+<svg
+            width="60"
+            height="60"
+            viewBox="0 0 320 320"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                <stop offset="40%" stop-color="#000000" />
+                <stop offset="65%" stop-color="#ff6a00" />
+                <stop offset="85%" stop-color="#ffae42" />
+                <stop offset="100%" stop-color="transparent" />
+              </radialGradient>
+              <radialGradient id="core" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#000000" />
+                <stop offset="100%" stop-color="#000000" />
+              </radialGradient>
+
+              <filter id="blur">
+                <feGaussianBlur stdDeviation="6" />
+              </filter>
+            </defs>
+            <circle
+              cx="160"
+              cy="160"
+              r="135"
+              fill="url(#glow)"
+              filter="url(#blur)"
+            />
+            <g>
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                from="0 160 160"
+                to="360 160 160"
+                dur="10s"
+                repeatCount="indefinite"
+              />
+              <ellipse
+                cx="160"
+                cy="160"
+                rx="105"
+                ry="48"
+                fill="none"
+                stroke="#ff7a18"
+                stroke-width="6"
+                opacity="0.95"
+              />
+              <ellipse
+                cx="160"
+                cy="160"
+                rx="82"
+                ry="36"
+                fill="none"
+                stroke="#ffb347"
+                stroke-width="4"
+                opacity="0.7"
+              />
+            </g>
+            <g>
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                from="360 160 160"
+                to="0 160 160"
+                dur="6s"
+                repeatCount="indefinite"
+              />
+
+              <ellipse
+                cx="160"
+                cy="160"
+                rx="65"
+                ry="26"
+                fill="none"
+                stroke="#ff9f1c"
+                stroke-width="3"
+                opacity="0.6"
+              />
+            </g>
+            <circle cx="160" cy="160" r="60" fill="url(#core)" />
+          </svg>
