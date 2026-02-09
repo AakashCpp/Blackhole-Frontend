@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   HackerCLIBg,
   HackerBackground,
@@ -11,8 +11,15 @@ import BlackholeScene from "../components/BlackholeScene";
 import { motion } from "framer-motion";
 
 function Landing() {
+  const services = [
+    "Early Threat Neutralization",
+    "URL Phishing Detection",
+    "Mail Phishing Detection",
+    "Vulnerability Assessment & Penetration Testing",
+    "Smart Contract Scanning",
+  ];
   const text =
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam cumque rerum dicta nobis asperiores obcaecati rem voluptas, architecto ducimus vero.";
+    "Black holes typically form when massive stars collapse at the end of their life cycle. After a black hole has formed, it can grow by absorbing mass from its surroundings";
   return (
     <>
       <div className="relative min-h-screen w-full overflow-hidden">
@@ -86,7 +93,7 @@ function Landing() {
         {/* 🧠 main content */}
         <div className="relative z-20 h-[75%] w-full backdrop-blur-xs rounded-sm p-5">
           {/* yahan tera actual UI / content aayega */}
-          <div className="h-[30%] w-full px-20 flex items-end pb-5">
+          <div className="h-[30%] w-full flex items-end pb-5">
             <h1 className="text-orange-400 font-bold text-5xl">
               Blackhole. <br />{" "}
               <p className="font-bold tracking-wider text-4xl text-white">
@@ -97,15 +104,15 @@ function Landing() {
             {/* <div className="bg-amber-500 w-[30] h-full"></div> */}
           </div>
           <div className="h-[60%] w-full mt-10 flex items-center justify-evenly gap-2">
-            <div className="h-full w-[25%] rounded-sm">
+            {/* <div className="h-full w-[25%] rounded-sm">
               <BlackholeScene />
-            </div>
-            <div className="h-full w-[75%] flex flex-col gap-2">
+            </div> */}
+            <div className="h-full w-full flex flex-col gap-2">
               <div className="w-full h-[75%] ">
                 <h1 className="text-2xl font-bold tracking-wide">
                   <span className="text-orange-400">Blackhole</span> is an
-                  astronomical object with gravitational pull so strong nothing
-                  can escape
+                  astronomical object with gravitational pull so strong that
+                  nothing can escape.
                 </h1>
                 <h1 className="text-xl text-zinc-300 tracking-wide leading-none mt-1">
                   Black holes typically form when massive stars collapse at the
@@ -118,7 +125,21 @@ function Landing() {
                   a body so massive that even light could not escape was briefly
                   proposed by English astronomical pioneer and clergyman John
                   Michell and independently by French scientist Pierre-Simon
-                  Laplace
+                  Laplace. Black holes typically form when massive stars
+                  collapse at the end of their life cycle. After a black hole
+                  has formed, it can grow by absorbing mass from its
+                  surroundings. Supermassive black holes of millions of solar
+                  masses may form by absorbing other stars and merging with
+                  other black holes, or via direct collapse of gas clouds. There
+                  is consensus that supermassive black holes exist in the
+                  centres of most galaxies. Black holes typically form when
+                  massive stars collapse at the end of their life cycle. After a
+                  black hole has formed, it can grow by absorbing mass from its
+                  surroundings. Supermassive black holes of millions of solar
+                  masses may form by absorbing other stars and merging with
+                  other black holes, or via direct collapse of gas clouds. There
+                  is consensus that supermassive black holes exist in the
+                  centres of most galaxies.
                 </h1>
               </div>
               <div className="w-full h-[25%] overflow-hidden flex items-center">
@@ -131,10 +152,10 @@ function Landing() {
                     repeat: Infinity,
                   }}
                 >
-                  <h1 className="text-7xl text-green-500 font-medium tracking-wide mx-16">
+                  <h1 className="text-7xl text-orange-400 font-medium tracking-wide mx-16">
                     {text}
                   </h1>
-                  <h1 className="text-7xl text-green-500 font-medium tracking-wide mx-16">
+                  <h1 className="text-7xl text-orange-400 font-medium tracking-wide mx-16">
                     {text}
                   </h1>
                 </motion.div>
@@ -145,6 +166,18 @@ function Landing() {
         <div className="w-full h-20 mt-12 overflow-hidden relative flex flex-col items-center justify-center">
           <h1 className="text-5xl">😁 SCROLL 😁</h1>
         </div>
+      </div>
+      <div className="min-h-screen w-full">
+        {services.map((service, idx) => (
+          <div key={idx}>
+            <div className="h-30 w-full rounded-sm p-6 border border-transparent hover:border-amber-500 transition">
+              <h3 className="text-6xl font-medium text-white">{service}</h3>
+            </div>
+
+            {/* divider except last item */}
+            {idx < services.length - 1 && <hr className="border-zinc-700" />}
+          </div>
+        ))}
       </div>
     </>
   );
