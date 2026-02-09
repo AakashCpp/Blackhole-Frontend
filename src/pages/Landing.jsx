@@ -7,8 +7,11 @@ import {
   ThreatRadar,
 } from "../components/MinBGComp";
 import HelmetScene from "../components/HackerMaskScene";
+import { motion } from "framer-motion";
 
 function Landing() {
+  const text =
+    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam cumque rerum dicta nobis asperiores obcaecati rem voluptas, architecto ducimus vero.";
   return (
     <>
       <div className="relative min-h-screen w-full overflow-hidden">
@@ -58,6 +61,63 @@ function Landing() {
                 <div className="h-12 w-[80%] flex items-center justify-center rounded-sm overflow-hidden">
                   <CLITerminal />
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="relative h-screen w-full overflow-hidden">
+        {/* 🎥 video background */}
+        <div className="absolute inset-0 h-[75%] w-full z-0 rounded-sm overflow-hidden">
+          <video
+            src="/media/175323-853193719_medium.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* 🌫️ overlay */}
+        {/* <div className="absolute inset-0 h-[75%] w-full z-10 backdrop-blur[5px] pointer-events-none rounded-sm" /> */}
+
+        {/* 🧠 main content */}
+        <div className="relative z-20 h-[75%] w-full backdrop-blur-xs rounded-sm p-5">
+          {/* yahan tera actual UI / content aayega */}
+          <div className="h-[30%] w-full px-20 flex items-end pb-5">
+            <h1 className="text-orange-400 font-bold text-5xl">
+              Blackhole. <br />{" "}
+              <p className="font-bold tracking-wider text-4xl text-white">
+                The point of singularity
+              </p>
+            </h1>
+            {/* floating space ship 3d model broewwww */}
+            {/* <div className="bg-amber-500 w-[30] h-full"></div> */}
+          </div>
+          <div className="h-[60%] w-full mt-10 flex items-center justify-evenly gap-2">
+            <div className="bg-amber-500 h-full w-[25%] rounded-sm">
+              model wala part 30%
+            </div>
+            <div className="h-full w-[75%] flex flex-col gap-2">
+              <div className="bg-amber-500 w-full h-[75%]">upper 75</div>
+              <div className="w-full h-[25%] overflow-hidden flex items-center">
+                {/* <motion.div
+                  className="flex whitespace-nowrap"
+                  animate={{ x: ["0%", "-50%"] }}
+                  transition={{
+                    duration: 60,
+                    ease: "linear",
+                    repeat: Infinity,
+                  }}
+                >
+                  <h1 className="text-7xl font-medium tracking-wide mx-16">
+                    {text}
+                  </h1>
+                  <h1 className="text-7xl font-medium tracking-wide mx-16">
+                    {text}
+                  </h1>
+                </motion.div> */}
               </div>
             </div>
           </div>
