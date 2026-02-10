@@ -199,6 +199,24 @@ function Landing() {
           </div>
         </div>
       </div>
+      <div className="h-screen w-full py-8 px-4 overflow-hidden">
+        <div className="w-full h-full flex flex-col items-start gap-10">
+          <div>
+            <h1 className="text-5xl font-bold tracking-wider leading-none">
+              Future Updates
+            </h1>
+          </div>
+          <div className="h-full w-full flex items-center justify-center gap-10">
+            <div className="h-full w-[35%] bg-amber-50 rounded-2xl">
+              <img src="" alt="" />
+            </div>
+            <div className="h-full w-[35%] bg-amber-50 rounded-2xl">
+              <img src="" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="min-h-screen w-full">
         {services.map((service, idx) => (
           <div key={idx}>
