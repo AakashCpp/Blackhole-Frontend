@@ -6,10 +6,18 @@ import {
   CThreatRadar,
   ThreatRadar,
 } from "../components/MinBGComp";
+import {
+  EyeOutlined,
+  RadarChartOutlined,
+  BulbOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
 import HelmetScene from "../components/HackerMaskScene";
 import BlackholeScene from "../components/BlackholeScene";
 import EyesFollowCursor from "../components/EyeMotion";
 import { motion } from "framer-motion";
+import { useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 function Landing() {
   const services = [
@@ -23,11 +31,39 @@ function Landing() {
     "Black holes typically form when massive stars collapse at the end of their life cycle. After a black hole has formed, it can grow by absorbing mass from its surroundings";
 
   const data = [
-    { icon: "👀", para: "Cursor based eye tracking" },
-    { icon: "🧠", para: "Math constrained movement" },
-    { icon: "😴", para: "Idle blink behavior" },
-    { icon: "😴", para: "Idle blink behavior" },
+    {
+      icon: <EyeOutlined />,
+      para: "Cursor based eye tracking",
+    },
+    {
+      icon: <RadarChartOutlined />,
+      para: "Math constrained movement",
+    },
+    {
+      icon: <BulbOutlined />,
+      para: "Intelligent motion logic",
+    },
+    {
+      icon: <ClockCircleOutlined />,
+      para: "Idle blink behavior",
+    },
   ];
+
+  const exploreData = [
+    {
+      title: "URL Phishing Detection",
+      desc: "Detect malicious URLs in real time using ML models trained on large phishing datasets.",
+    },
+    {
+      title: "Mail Phishing Detection",
+      desc: "Analyze email content, headers, and metadata to identify phishing attempts instantly.",
+    },
+    {
+      title: "Early Threat Neutralization",
+      desc: "Identify and block potential security threats at an early stage before damage occurs.",
+    },
+  ];
+
   return (
     <>
       <div className="relative min-h-screen w-full overflow-hidden">
@@ -181,21 +217,17 @@ function Landing() {
               <Explain key={i} icon={item.icon} para={item.para} />
             ))}
           </div>
-          <hr className="border-zinc-700" />
           <div className="w-full h-[40%] p-2 flex items-center justify-center">
             <div className="h-[70%] w-full flex items-center justify-evenly gap-10">
-              <Explore
-                heading={"hahahahahahaha"}
-                desc={"hhhahahahahhahahahahahahahahaha"}
-              />
-              <Explore
-                heading={"hahahahahahaha"}
-                desc={"hhhahahahahhahahahahahahahahaha"}
-              />
+              {exploreData.map((item, idx) => (
+                <ExploreCard key={idx} title={item.title} desc={item.desc} />
+              ))}
             </div>
           </div>
           <div className="w-full h-[30%] p-2">
-            <div className="h-full w-full bg-amber-50"></div>
+            <div className="h-full w-full bg-amber-50">
+              <ImageTextReveal />
+            </div>
           </div>
         </div>
       </div>
@@ -237,30 +269,75 @@ export default Landing;
 
 const Explain = ({ icon, para }) => {
   return (
-    <div className="w-[25%] h-full bg-amber-950 p-4 rounded-xl flex flex-col gap-3 overflow-hidden">
-      <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center">
+    <div className="group w-[25%] h-full rounded-xl p-5 bg-zinc-900 border border-zinc-700 hover:border-amber-500/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-500/10 flex flex-col gap-4">
+      <div className="h-12 w-12 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-300 group-hover:scale-110 transition-transform">
         {icon}
       </div>
 
-      <p className="text-amber-100 text-sm">{para}</p>
+      {/* text */}
+      <p className="text-amber-100/90 text-sm leading-relaxed">{para}</p>
     </div>
   );
 };
 
-const Explore = ({ heading, desc }) => {
+const ExploreCard = ({ title, desc }) => {
   return (
-    <div className="h-full w-1/3 flex flex-col gap-3 p-4 overflow-hidden">
-      <h2 className="text-amber-100 font-bold tracking-wide text-lg">
-        {heading}
-      </h2>
+    <div className="w-80 bg-zinc-900 border border-zinc-700 rounded-lg p-5 hover:border-amber-500/60 transition-colors duration-300">
+      <h3 className="text-lg font-semibold text-zinc-100 tracking-wide mb-2">
+        {title}
+      </h3>
 
-      <div className="w-full h-full">
-        <h1 className=" text-zinc-300 tracking-wide leading-none">{desc}</h1>
-      </div>
+      <p className="text-sm text-zinc-400 leading-relaxed line-clamp-4">
+        {desc}
+      </p>
 
-      <button className="w-fit mt-auto text-zinc-400 font-bold tracking-wider hover:text-blue-300 transition-colors">
+      <button className="mt-4 text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors">
         Explore →
       </button>
     </div>
   );
 };
+
+function ImageTextReveal() {
+  const ref = useRef(null);
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 90%", "start 50%"],
+  });
+
+  const paragraph = `Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology. Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology. Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology. Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology. Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology.`;
+  const words = paragraph.split(" ");
+
+  return (
+    <section
+      ref={ref}
+      className="relative h-full w-full bg-zinc-950 flex items-center justify-center px-10"
+    >
+      <p className="text-lg leading-tight font-medium text-zinc-100 flex flex-wrap gap-x-3">
+        {words.map((word, i) => {
+          const delay = 0.05;
+          const start = i / words.length;
+          const end = start + 1 / words.length;
+
+          const opacity = useTransform(
+            scrollYProgress,
+            [start, end],
+            [0.15, 1],
+          );
+
+          return (
+            <motion.span
+              key={i}
+              style={{ opacity }}
+              animate={{ animationDelay: 2000 }}
+              className="inline-block"
+            >
+              {word}
+            </motion.span>
+          );
+        })}
+      </p>
+    </section>
+  );
+}
