@@ -8,6 +8,7 @@ import {
 } from "../components/MinBGComp";
 import HelmetScene from "../components/HackerMaskScene";
 import BlackholeScene from "../components/BlackholeScene";
+import EyesFollowCursor from "../components/EyeMotion";
 import { motion } from "framer-motion";
 
 function Landing() {
@@ -20,6 +21,13 @@ function Landing() {
   ];
   const text =
     "Black holes typically form when massive stars collapse at the end of their life cycle. After a black hole has formed, it can grow by absorbing mass from its surroundings";
+
+  const data = [
+    { icon: "👀", para: "Cursor based eye tracking" },
+    { icon: "🧠", para: "Math constrained movement" },
+    { icon: "😴", para: "Idle blink behavior" },
+    { icon: "😴", para: "Idle blink behavior" },
+  ];
   return (
     <>
       <div className="relative min-h-screen w-full overflow-hidden">
@@ -152,10 +160,10 @@ function Landing() {
                     repeat: Infinity,
                   }}
                 >
-                  <h1 className="text-7xl text-orange-400 font-medium tracking-wide mx-16">
+                  <h1 className="text-7xl text-green-400 font-medium tracking-wide mx-16">
                     {text}
                   </h1>
-                  <h1 className="text-7xl text-orange-400 font-medium tracking-wide mx-16">
+                  <h1 className="text-7xl text-green-400 font-medium tracking-wide mx-16">
                     {text}
                   </h1>
                 </motion.div>
@@ -163,8 +171,32 @@ function Landing() {
             </div>
           </div>
         </div>
-        <div className="w-full h-20 mt-12 overflow-hidden relative flex flex-col items-center justify-center">
-          <h1 className="text-5xl">😁 SCROLL 😁</h1>
+        <EyesFollowCursor />
+      </div>
+      <div className="h-screen w-full">
+        <div className="h-full w-full flex flex-col">
+          {/* the 4 explain section */}
+          <div className="w-full h-[30%] flex items-center justify-evenly gap-4 p-2">
+            {data.map((item, i) => (
+              <Explain key={i} icon={item.icon} para={item.para} />
+            ))}
+          </div>
+          <hr className="border-zinc-700" />
+          <div className="w-full h-[40%] p-2 flex items-center justify-center">
+            <div className="h-[70%] w-full flex items-center justify-evenly gap-10">
+              <Explore
+                heading={"hahahahahahaha"}
+                desc={"hhhahahahahhahahahahahahahahaha"}
+              />
+              <Explore
+                heading={"hahahahahahaha"}
+                desc={"hhhahahahahhahahahahahahahahaha"}
+              />
+            </div>
+          </div>
+          <div className="w-full h-[30%] p-2">
+            <div className="h-full w-full bg-amber-50"></div>
+          </div>
         </div>
       </div>
       <div className="min-h-screen w-full">
@@ -184,3 +216,33 @@ function Landing() {
 }
 
 export default Landing;
+
+const Explain = ({ icon, para }) => {
+  return (
+    <div className="w-[25%] h-full bg-amber-950 p-4 rounded-xl flex flex-col gap-3 overflow-hidden">
+      <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center">
+        {icon}
+      </div>
+
+      <p className="text-amber-100 text-sm">{para}</p>
+    </div>
+  );
+};
+
+const Explore = ({ heading, desc }) => {
+  return (
+    <div className="h-full w-1/3 flex flex-col gap-3 p-4 overflow-hidden">
+      <h2 className="text-amber-100 font-bold tracking-wide text-lg">
+        {heading}
+      </h2>
+
+      <div className="w-full h-full">
+        <h1 className=" text-zinc-300 tracking-wide leading-none">{desc}</h1>
+      </div>
+
+      <button className="w-fit mt-auto text-zinc-400 font-bold tracking-wider hover:text-blue-300 transition-colors">
+        Explore →
+      </button>
+    </div>
+  );
+};
