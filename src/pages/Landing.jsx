@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   HackerCLIBg,
   HackerBackground,
@@ -15,22 +15,19 @@ import {
 import HelmetScene from "../components/HackerMaskScene";
 import BlackholeScene from "../components/BlackholeScene";
 import EyesFollowCursor from "../components/EyeMotion";
-import { motion } from "framer-motion";
-import { useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import {
+  useScroll,
+  useTransform,
+  motion,
+  AnimatePresence,
+} from "framer-motion";
 
 function Landing() {
-  const services = [
-    "Early Threat Neutralization",
-    "URL Phishing Detection",
-    "Mail Phishing Detection",
-    "Vulnerability Assessment & Penetration Testing",
-    "Smart Contract Scanning",
-  ];
+  const [activeText, setActiveText] = useState(null);
   const text =
     "Black holes typically form when massive stars collapse at the end of their life cycle. After a black hole has formed, it can grow by absorbing mass from its surroundings";
 
-  const data = [
+  const explainData = [
     {
       icon: <EyeOutlined />,
       para: "Cursor based eye tracking",
@@ -196,10 +193,10 @@ function Landing() {
                     repeat: Infinity,
                   }}
                 >
-                  <h1 className="text-7xl text-green-400 font-medium tracking-wide mx-16">
+                  <h1 className="text-7xl text-amber-100 font-medium tracking-wide mx-16">
                     {text}
                   </h1>
-                  <h1 className="text-7xl text-green-400 font-medium tracking-wide mx-16">
+                  <h1 className="text-7xl text-amber-100 font-medium tracking-wide mx-16">
                     {text}
                   </h1>
                 </motion.div>
@@ -213,7 +210,7 @@ function Landing() {
         <div className="h-full w-full flex flex-col">
           {/* the 4 explain section */}
           <div className="w-full h-[30%] flex items-center justify-evenly gap-4 p-2">
-            {data.map((item, i) => (
+            {explainData.map((item, i) => (
               <Explain key={i} icon={item.icon} para={item.para} />
             ))}
           </div>
@@ -238,28 +235,78 @@ function Landing() {
               Future Updates
             </h1>
           </div>
-          <div className="h-full w-full flex items-center justify-center gap-10">
-            <div className="h-full w-[35%] bg-amber-50 rounded-2xl">
-              <img src="" alt="" />
+          <div className="h-full w-full flex items-center justify-center gap-10 relative">
+            <div
+              className="h-full w-[35%] bg-zinc-200 rounded-2xl flex items-center justify-center group"
+              onMouseEnter={() => setActiveText("FYDE")}
+              onMouseLeave={() => setActiveText(null)}
+            >
+              {/* IMAGE BOX */}
+              <div
+                className="w-80 h-90 rounded-2xl bg-amber-200 overflow-hidden
+                 transition-transform duration-100 ease-out
+                 group-hover:scale-105"
+              >
+                <img
+                  className="h-full w-full object-cover"
+                  src="https://www.bing.com/th/id/OIP.VqFvHSAcDq7Q3nlvGAbAKQHaEJ?w=197&h=180&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2"
+                  alt="img"
+                />
+              </div>
             </div>
-            <div className="h-full w-[35%] bg-amber-50 rounded-2xl">
-              <img src="" alt="" />
+
+            <div
+              className="h-full w-[35%] bg-zinc-950 rounded-2xl flex items-center justify-center group"
+              onMouseEnter={() => setActiveText("SKYE")}
+              onMouseLeave={() => setActiveText(null)}
+            >
+              {/* IMAGE BOX */}
+              <div
+                className="w-80 h-90 rounded-2xl bg-amber-200 overflow-hidden
+                 transition-transform duration-100 ease-out
+                 group-hover:scale-105"
+              >
+                <img
+                  className="h-full w-full object-cover"
+                  src="https://www.bing.com/th/id/OIP.VqFvHSAcDq7Q3nlvGAbAKQHaEJ?w=197&h=180&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2"
+                  alt="img"
+                />
+              </div>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <AnimatePresence mode="wait">
+                {activeText && (
+                  <motion.h1
+                    key={activeText} // 🔥 VERY IMPORTANT (re-trigger animation)
+                    className="text-amber-500 font-bold text-7xl tracking-tight"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    {activeText.split("").map((char, i) => (
+                      <motion.span
+                        key={i}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{
+                          duration: 0.2,
+                          delay: i * 0.04,
+                          ease: "easeOut",
+                        }}
+                        className={`inline-block ${activeText === "SKYE" ? "text-cyan-400" : "text-amber-400"}`}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                  </motion.h1>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </div>
-
       <div className="min-h-screen w-full">
-        {services.map((service, idx) => (
-          <div key={idx}>
-            <div className="h-30 w-full rounded-sm p-6 border border-transparent hover:border-amber-500 transition">
-              <h3 className="text-6xl font-medium text-white">{service}</h3>
-            </div>
-
-            {/* divider except last item */}
-            {idx < services.length - 1 && <hr className="border-zinc-700" />}
-          </div>
-        ))}
+        <Services />
       </div>
     </>
   );
@@ -303,7 +350,7 @@ function ImageTextReveal() {
 
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start 90%", "start 50%"],
+    offset: ["start 90%", "end 50%"],
   });
 
   const paragraph = `Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology. Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology. Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology. Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology. Security is no longer about reacting after a breach occurs. It is about understanding systems, anticipating threats, and building protection into every layer of technology.`;
@@ -339,5 +386,76 @@ function ImageTextReveal() {
         })}
       </p>
     </section>
+  );
+}
+
+function Services() {
+  const services = [
+    {
+      title: "Vulnerability Assessment & Penetration Testing",
+      img: "https://images.unsplash.com/photo-1639322537504-6427a16b0a28",
+    },
+    {
+      title: "Smart Contract Scan",
+      img: "https://images.unsplash.com/photo-1629904853893-c2c8981a1dc5",
+    },
+    {
+      title: "AI Threat Identification",
+      img: "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+    },
+    {
+      title: "Ml Based Phishing detection",
+      img: "https://images.unsplash.com/photo-1647166545674-ce28ce93bdca",
+    },
+    {
+      title: "Early Thret Neutralization",
+      img: "https://images.unsplash.com/photo-1639322537504-6427a16b0a28",
+    },
+  ];
+
+  const [activeService, setActiveService] = useState(null);
+  const [cursor, setCursor] = useState({ x: 0, y: 0 });
+
+  return (
+    <div className="min-h-screen w-full text-white relative overflow-hidden mt-10">
+      {/* services list */}
+      <div className="relative min-h-screen w-full">
+        {services.map((service, idx) => (
+          <div key={idx}>
+            <div
+              className="h-28 w-full flex items-center px-6 border border-transparent hover:border-amber-500 transition-all"
+              onMouseEnter={() => setActiveService(service)}
+              onMouseLeave={() => setActiveService(null)}
+              onMouseMove={(e) =>
+                setCursor({ x: e.clientX + 20, y: e.clientY + 20 })
+              }
+            >
+              <h3 className="text-5xl font-medium tracking-wider">
+                {service.title}
+              </h3>
+            </div>
+
+            {idx < services.length - 1 && <hr className="border-zinc-800" />}
+          </div>
+        ))}
+      </div>
+
+      {/* cursor-follow image */}
+      {activeService && (
+        <div
+          className="fixed top-0 left-0 -translate-y-[50%] -translate-x-[50%] z-50 pointer-events-none transition-transform duration-150 ease-in-out"
+          style={{
+            left: cursor.x,
+            top: cursor.y,
+          }}
+        >
+          <img
+            src={activeService.img}
+            alt=""
+            className="w-56 h-36 object-cover rounded-xl shadow-2xl"
+          />
+        </div>
+      )}
+    </div>
   );
 }
