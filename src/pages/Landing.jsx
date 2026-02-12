@@ -231,14 +231,14 @@ function Landing() {
       <div className="h-screen w-full py-8 px-4 overflow-hidden">
         <div className="w-full h-full flex flex-col items-start gap-10">
           <div>
-            <h1 className="text-5xl font-bold tracking-wider leading-none">
+            <h1 className="text-5xl font-bold tracking-wider leading-none ml-8">
               Future Updates
             </h1>
           </div>
           <div className="h-full w-full flex items-center justify-center gap-10 relative">
             <div
               className="h-full w-[35%] bg-zinc-200 rounded-2xl flex items-center justify-center group"
-              onMouseEnter={() => setActiveText("FYDE")}
+              onMouseEnter={() => setActiveText("WAPT")}
               onMouseLeave={() => setActiveText(null)}
             >
               {/* IMAGE BOX */}
@@ -257,7 +257,7 @@ function Landing() {
 
             <div
               className="h-full w-[35%] bg-zinc-950 rounded-2xl flex items-center justify-center group"
-              onMouseEnter={() => setActiveText("SKYE")}
+              onMouseEnter={() => setActiveText("NMAP")}
               onMouseLeave={() => setActiveText(null)}
             >
               {/* IMAGE BOX */}
@@ -278,7 +278,7 @@ function Landing() {
                 {activeText && (
                   <motion.h1
                     key={activeText} // 🔥 VERY IMPORTANT (re-trigger animation)
-                    className="text-amber-500 font-bold text-7xl tracking-tight"
+                    className="text-amber-500 font-bold text-5xl tracking-tighter"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -293,7 +293,7 @@ function Landing() {
                           delay: i * 0.04,
                           ease: "easeOut",
                         }}
-                        className={`inline-block ${activeText === "SKYE" ? "text-cyan-400" : "text-amber-400"}`}
+                        className={`inline-block ${activeText === "NMAP" ? "text-cyan-400" : "text-amber-400"}`}
                       >
                         {char}
                       </motion.span>
