@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 function About() {
   const [isHovering, setIsHovering] = useState(false);
@@ -149,11 +149,205 @@ function About() {
           </motion.div>
         </div>
       </div>
-      <div className="min-h-96 w-full p-6">
-        <div className="bg-zinc-700 h-96 w-full"></div>
+      <div className="relative min-h-[80vh] w-full overflow-hidden bg-zinc-900"></div>
+      <div className="relative min-h-96 w-full overflow-hidden bg-zinc-900 my-10">
+        {/* bg-video layer */}
+        <div className="absolute inset-0 z-0">
+          <video
+            src="/media/175323-853193719_medium.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* overlay layer */}
+        <div className="absolute inset-0 z-10 bg-linear-to-l from-zinc-900 via-zinc-900/80 to-transparent" />
+
+        {/* actual content */}
+        <div className="relative z-20 p-6 text-white">
+          <h1 className="text-4xl font-bold">The Team</h1>
+
+          <p className="mt-4 text-zinc-300 max-w-xl">
+            Our core team focuses on security, intelligence, and scalable
+            systems.
+          </p>
+
+          <TeamAccordion />
+        </div>
       </div>
     </>
   );
 }
 
 export default About;
+
+function TeamAccordion() {
+  const team = [
+    {
+      id: 0,
+      name: "Aakash",
+      role: "Security Architect",
+      bio: "Focuses on system-level threat modeling and zero trust architectures.",
+    },
+    {
+      id: 1,
+      name: "Rohan",
+      role: "ML Engineer",
+      bio: "Builds phishing detection and anomaly detection models.",
+    },
+    {
+      id: 2,
+      name: "Neha",
+      role: "Product Engineer",
+      bio: "Designs scalable dashboards and real-time monitoring systems.",
+    },
+  ];
+
+  const [active, setActive] = useState(1); // content owner
+  const [expanded, setExpanded] = useState(1); // layout owner
+  const [next, setNext] = useState(null); // queued card
+
+  const container = {
+    hidden: {
+      opacity: 0,
+      scale: 0.96,
+      filter: "blur(6px)",
+    },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: {
+        delay: 0.35,
+        staggerChildren: 0.15,
+        ease: "easeOut",
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.95,
+      filter: "blur(8px)",
+      transition: {
+        duration: 0.25,
+        ease: "easeIn",
+      },
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 14 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: "easeOut" },
+    },
+  };
+
+  const handleClick = (idx) => {
+    if (idx === expanded) return;
+    setNext(idx); // queue next
+    setActive(null); // trigger exit
+  };
+
+  const handleExitComplete = () => {
+    if (next !== null) {
+      setExpanded(next); // collapse / expand
+      setActive(next); // mount content
+      setNext(null);
+    }
+  };
+
+  return (
+    <div className="flex h-72 gap-4 mt-10">
+      {team.map((member, idx) => {
+        const isExpanded = expanded === idx;
+        const isActive = active === idx;
+
+        return (
+          <motion.div
+            key={member.id}
+            layout
+            style={{ flex: isExpanded ? 3 : 1 }}
+            transition={{ duration: 0.55, ease: "easeInOut" }}
+            className="relative rounded-xl bg-zinc-900 overflow-hidden cursor-pointer"
+            onClick={() => handleClick(idx)}
+          >
+            {/* MINIMIZED STATE */}
+            {!isExpanded && (
+              <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                {/* IMAGE */}
+                {/* <motion.img
+                  src={member.image}
+                  alt={member.name}
+                  className="absolute h-[85%] object-contain opacity-90"
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                /> */}
+
+                {/* DARK EDGE MASK */}
+                <div
+                  className="absolute inset-0 bg-linear-to-r 
+                    from-zinc-900/80 via-transparent to-zinc-900/90"
+                />
+
+                {/* NAME TEXT */}
+                <div className="relative z-10 flex flex-col">
+                  {member.name.split("").map((char, i) => (
+                    <motion.span
+                      key={i}
+                      className="text-zinc-300 font-mono text-lg tracking-widest"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ACTIVE CONTENT */}
+            <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
+              {isActive && (
+                <motion.div
+                  key="content"
+                  variants={container}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="h-full p-6 flex flex-col justify-center"
+                >
+                  <motion.h2
+                    variants={item}
+                    className="text-2xl font-bold text-amber-400"
+                  >
+                    {member.name}
+                  </motion.h2>
+
+                  <motion.h4
+                    variants={item}
+                    className="text-sm text-zinc-400 mt-1"
+                  >
+                    {member.role}
+                  </motion.h4>
+
+                  <motion.p
+                    variants={item}
+                    className="text-zinc-300 mt-4 max-w-sm leading-relaxed"
+                  >
+                    {member.bio}
+                  </motion.p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
