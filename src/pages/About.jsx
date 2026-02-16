@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HackerBackground } from "../components/MinBGComp";
 import HackerMask3D from "../components/Loaders/3d loader/HackerMask3D";
 import RotatingCylinder from "../components/RotatingCylinder";
+import GlobeScene from "../components/Globe";
 
 function About() {
   const [isHovering, setIsHovering] = useState(false);
@@ -190,8 +191,8 @@ function About() {
               </div>
             </div>
           </div>
-          <div className="h-full w-[30%] bg-red-200">
-            rotating globe wala sec
+          <div className="h-full w-[30%]">
+            <GlobeScene />
           </div>
         </div>
         <div className="h-[35vh] w-full overflow-hidden flex gap-2">
@@ -215,6 +216,7 @@ function About() {
           </div>
         </div>
       </div>
+      <div className="min-h-[40vh] w-full bg-zinc-500 mt-10"></div>
       <div className="relative min-h-96 w-full overflow-hidden bg-zinc-900 my-10">
         {/* bg-video layer */}
         <div className="absolute inset-0 z-0">
@@ -239,7 +241,6 @@ function About() {
             Our core team focuses on security, intelligence, and scalable
             systems.
           </p>
-
           <TeamAccordion />
         </div>
       </div>

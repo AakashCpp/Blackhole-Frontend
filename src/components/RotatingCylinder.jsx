@@ -12,8 +12,8 @@ function CylinderScene() {
     }
   });
 
-  const labels = ["SCAN", "AI CORE", "SECURE", "ANALYZE", "MONITOR"];
-  const radius = 1.6;
+  const labels = ["SCAN", "AI CORE", "SECURE", "ANALYZE", "MONITOR", "Detect"];
+  const radius = 2;
 
   return (
     <>
@@ -68,7 +68,7 @@ function CylinderScene() {
 export default function RotatingCylinder() {
   return (
     <div className="h-full w-full">
-      <Canvas camera={{ position: [0, 1.8, 1], fov: 60 }}>
+      <Canvas camera={{ position: [0, 1.6, 2], fov: 60 }}>
         <Environment
           files="/env/ferndale_studio_09_2k.hdr"
           intensity={0.7}
