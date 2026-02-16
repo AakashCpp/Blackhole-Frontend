@@ -4,7 +4,7 @@ const HackerLoader = () => {
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center">
       {/* Glow */}
-      <div className="absolute w-96 h-96 bg-green-500 blur-3xl opacity-20 animate-pulse" />
+      <div className="absolute bg-green-500 blur-3xl opacity-20 animate-pulse" />
 
       {/* 3D Mask */}
       <div className="w-64 h-64 animate-fade">

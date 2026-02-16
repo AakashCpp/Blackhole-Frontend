@@ -56,7 +56,7 @@ const HackerMask3D = () => {
         <Mask />
       </Suspense>
 
-      <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={20} />
+      <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={15} />
     </Canvas>
   );
 };

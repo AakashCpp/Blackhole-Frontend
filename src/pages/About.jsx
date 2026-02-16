@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { HackerBackground } from "../components/MinBGComp";
+import HackerMask3D from "../components/Loaders/3d loader/HackerMask3D";
+import RotatingCylinder from "../components/RotatingCylinder";
 
 function About() {
   const [isHovering, setIsHovering] = useState(false);
@@ -149,7 +152,69 @@ function About() {
           </motion.div>
         </div>
       </div>
-      <div className="relative min-h-[80vh] w-full overflow-hidden bg-zinc-900"></div>
+      <div className="min-h-[90vh] w-full overflow-hidden flex flex-col gap-2">
+        <div className="h-[55vh] w-full flex gap-2">
+          <div className="h-full w-[70%] flex flex-col gap-2">
+            <h1 className="text-3xl text-violet-300 font-bold tracking-wider">
+              <span className="text-amber-400">Blackhole</span> ipsum dolor sit
+              amet consectetur adipisicing.
+            </h1>
+            <div className="h-[40%] w-full">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Error
+              amet, magni eius sed ea aliquid aut nulla voluptas culpa facilis
+              quo molestias rem, possimus nemo quidem esse. Magnam voluptate
+              quas est consequuntur cum accusamus ducimus quia iste, impedit,
+              eveniet totam autem repellat facilis rerum blanditiis aperiam
+              facere adipisci! Explicabo, corporis. Lorem ipsum dolor sit amet
+              consectetur adipisicing elit. Error amet, magni eius sed ea
+              aliquid aut nulla voluptas culpa facilis quo molestias rem,
+              possimus nemo quidem esse. Magnam voluptate quas est consequuntur
+              cum accusamus ducimus quia iste, impedit, eveniet totam autem
+              repellat facilis rerum blanditiis aperiam facere adipisci!
+              Explicabo, corporis.
+            </div>
+            <div className="h-[60%] flex items-center justify-between  gap-2">
+              <div className="h-full w-[60%]">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Error
+                amet, magni eius sed ea aliquid aut nulla voluptas culpa facilis
+                quo molestias rem, possimus nemo quidem esse. Magnam voluptate
+                quas est consequuntur cum accusamus ducimus quia iste, impedit,
+                eveniet totam autem repellat facilis rerum blanditiis aperiam
+                facere adipisci! Explicabo, corporis. Magnam voluptate quas est
+                consequuntur cum accusamus ducimus quia iste, impedit, eveniet
+                totam autem repellat facilis rerum blanditiis aperiam facere
+                adipisci! Explicabo, corporis.
+              </div>
+              <div className="h-52 w-[40%] flex items-start justify-center">
+                <RotatingCylinder />
+              </div>
+            </div>
+          </div>
+          <div className="h-full w-[30%] bg-red-200">
+            rotating globe wala sec
+          </div>
+        </div>
+        <div className="h-[35vh] w-full overflow-hidden flex gap-2">
+          <div className="h-full w-[60%] rounded-sm">
+            <video
+              src="/media/175323-853193719_medium.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="relative h-full w-[40%] bg-red-300">
+            <div className="absolute h-full w-full z-10">
+              <HackerBackground />
+            </div>
+            <div className="relative h-full w-full z-40">
+              <HackerMask3D />
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="relative min-h-96 w-full overflow-hidden bg-zinc-900 my-10">
         {/* bg-video layer */}
         <div className="absolute inset-0 z-0">
