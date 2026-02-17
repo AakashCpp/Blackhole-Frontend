@@ -198,7 +198,7 @@ function About() {
         <div className="h-[35vh] w-full overflow-hidden flex gap-2">
           <div className="h-full w-[60%] rounded-sm">
             <video
-              src="/media/175323-853193719_medium.mp4"
+              src="/media/6797-196071980_small.mp4"
               autoPlay
               muted
               loop
@@ -216,12 +216,11 @@ function About() {
           </div>
         </div>
       </div>
-      <div className="min-h-[40vh] w-full bg-zinc-500 mt-10"></div>
       <div className="relative min-h-96 w-full overflow-hidden bg-zinc-900 my-10">
         {/* bg-video layer */}
         <div className="absolute inset-0 z-0">
           <video
-            src="/media/175323-853193719_medium.mp4"
+            src="/media/134302-759212626_small.mp4"
             autoPlay
             muted
             loop
@@ -231,7 +230,7 @@ function About() {
         </div>
 
         {/* overlay layer */}
-        <div className="absolute inset-0 z-10 bg-linear-to-l from-zinc-900 via-zinc-900/80 to-transparent" />
+        <div className="absolute inset-0 z-10 bg-linear-to-r from-zinc-900 via-zinc-900/80 to-transparent" />
 
         {/* actual content */}
         <div className="relative z-20 p-6 text-white">
