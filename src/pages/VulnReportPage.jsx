@@ -742,7 +742,7 @@ const SecurityReportDashboard = () => {
             {filteredData.length === 0 && (
               <div className="text-center py-12 bg-white rounded-lg border border-dashed border-gray-300">
                 <p className="text-gray-400">
-                  No vulnerabilities found matching your criteria.
+                  No vulnerabilities found matching criteria.
                 </p>
               </div>
             )}
