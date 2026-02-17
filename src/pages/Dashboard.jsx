@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-// import Profile from "./pages/Profile";
-// import Scanners from "./pages/Scanners";
-// import NetworkMap from "./pages/NetworkMap";
-// import Analytics from "./pages/Analytics";
+import Profile from "./Profile";
+import Scanners from "./Scanners";
+import NetworkMap from "./NetworkMap";
+import Analytics from "./Analytics";
+import DashHistory from "../components/DashHistory";
 import {
   User,
   ShieldCheck,
@@ -12,6 +13,7 @@ import {
   LogOut,
   ChevronLeft,
   Menu,
+  Shell,
 } from "lucide-react";
 
 /* ===== COLOR MAPS (TAILWIND SAFE) ===== */
@@ -152,7 +154,7 @@ function Dashboard() {
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
-                      <MiniStat title="Today" value="128" color="cyan" />
+                      <MiniStat title="Today" value="128 🕧" color="cyan" />
                       <MiniStat title="Streak" value="12🔥" color="green" />
                       <MiniStat title="Max" value="38🚀" color="red" />
                     </div>
@@ -210,11 +212,30 @@ function Dashboard() {
                 })}
               </div>
 
-              {/* ===== LOGOUT ===== */}
+              {/* ===== LOGOUT LANDING===== */}
               <motion.button
                 whileHover={{ x: 4 }}
                 transition={smooth}
-                className="mt-auto flex h-11 items-center gap-3 rounded-lg px-3 text-rose-500 hover:bg-rose-500/10"
+                className="mt-auto flex h-11 items-center gap-3 rounded-lg px-3 text-violet-500 hover:bg-violet-500/10"
+              >
+                <Shell size={20} />
+                <AnimatePresence mode="wait">
+                  {!collapsed && (
+                    <motion.span
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={smooth}
+                    >
+                      Landing
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+              <motion.button
+                whileHover={{ x: 4 }}
+                transition={smooth}
+                className=" flex h-11 items-center gap-3 rounded-lg px-3 text-rose-500 hover:bg-rose-500/10"
               >
                 <LogOut size={20} />
                 <AnimatePresence mode="wait">
@@ -236,6 +257,11 @@ function Dashboard() {
           {/* ===== MAIN CONTENT ===== */}
           <main className="flex-1 p-10 text-slate-700">
             <p className="font-medium">Main content goes here 👀</p>
+            {/* <Profile />
+            <Scanners />
+            <NetworkMap />
+            <Analytics /> */}
+            <DashHistory />
           </main>
           {/* <main className="flex-1 p-10 text-slate-700">
           {active === "profile" && <Profile />}
