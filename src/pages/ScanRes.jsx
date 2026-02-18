@@ -17,7 +17,7 @@ import {
   ChevronRight,
   Terminal,
 } from "lucide-react";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 
 const ScanRes = () => {
@@ -40,47 +40,39 @@ const ScanRes = () => {
     setIsGeneratingPdf(true);
 
     try {
-      // 1. Capture the content with high scale for clarity
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff", // Pure white background for PDF
-        logging: false,
-        windowWidth: element.scrollWidth, // Ensure full width is captured
-        windowHeight: element.scrollHeight, // Ensure full height is captured
+      // Small delay to ensure styles capture correctly
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const dataUrl = await toPng(element, {
+        quality: 0.95,
+        backgroundColor: "#F8FAFC", // Match the bg-slate-50 color
+        cacheBust: true,
       });
 
-      const imgData = canvas.toDataURL("image/png");
-
-      // 2. Setup A4 PDF
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      // 3. Calculate dimensions to fit width
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = pdfWidth / imgWidth;
-      const scaledHeight = imgHeight * ratio;
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-      let heightLeft = scaledHeight;
+      let heightLeft = imgHeight;
       let position = 0;
 
-      // 4. Add pages
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, scaledHeight);
+      pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight);
       heightLeft -= pdfHeight;
 
       while (heightLeft > 0) {
-        position = heightLeft - scaledHeight;
+        position = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, scaledHeight);
+        pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight);
         heightLeft -= pdfHeight;
       }
 
-      pdf.save("security-report.pdf");
+      pdf.save("Security_Scan_Report.pdf");
     } catch (error) {
-      console.error("PDF Generation failed", error);
-      alert("Failed to generate PDF. Please try again.");
+      console.error("PDF Error:", error);
+      alert("Could not generate PDF. Please try again.");
     } finally {
       setIsGeneratingPdf(false);
     }
