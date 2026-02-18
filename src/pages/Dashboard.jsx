@@ -259,8 +259,8 @@ function Dashboard() {
           <main className="flex-1 p-10 text-slate-700">
             {/* <Profile /> */}
             {/* <Scanners /> */}
-            <NetworkMap />
-            {/* <Analytics /> */}
+            {/* <NetworkMap /> */}
+            <Analytics />
             {/* <DashHistory /> */}
             {/* <SecurityReportDashboard /> */}
           </main>
