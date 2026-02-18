@@ -5,6 +5,7 @@ import Scanners from "./Scanners";
 import NetworkMap from "./NetworkMap";
 import Analytics from "./Analytics";
 import DashHistory from "../components/DashHistory";
+import SecurityReportDashboard from "./VulnReportPage";
 import {
   User,
   ShieldCheck,
@@ -256,12 +257,12 @@ function Dashboard() {
 
           {/* ===== MAIN CONTENT ===== */}
           <main className="flex-1 p-10 text-slate-700">
-            <p className="font-medium">Main content goes here 👀</p>
-            {/* <Profile />
-            <Scanners />
+            <Profile />
+            {/* <Scanners />
             <NetworkMap />
-            <Analytics /> */}
-            <DashHistory />
+            <Analytics />
+            <DashHistory /> */}
+            {/* <SecurityReportDashboard /> */}
           </main>
           {/* <main className="flex-1 p-10 text-slate-700">
           {active === "profile" && <Profile />}

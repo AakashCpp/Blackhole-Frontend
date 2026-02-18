@@ -4,7 +4,6 @@ import About from "./pages/About";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
-import SecurityReportDashboard from "./pages/VulnReportPage";
 
 function App() {
   return (
@@ -17,8 +16,7 @@ function App() {
         <Dashboard />
       </div> */}
       <div className="bg-white min-h-screen w-screen text-black">
-        {/* <Dashboard /> */}
-        <SecurityReportDashboard />
+        <Dashboard />
       </div>
     </>
   );
