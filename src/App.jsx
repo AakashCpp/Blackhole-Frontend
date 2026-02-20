@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import VerifyEmail from "./components/VerifyEmail";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
+
 function App() {
   return (
     <>
@@ -29,7 +30,6 @@ function App() {
       <div className="bg-zinc-950 min-h-screen w-screen px-10 text-white">
         <Navbar></Navbar>
         <Routes>
-          {/* Default route ko Login par redirect kar rahe hain */}
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
