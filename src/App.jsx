@@ -4,20 +4,23 @@ import About from "./pages/About";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
-
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 function App() {
   return (
     <>
-      {/* <div className="bg-zinc-950 min-h-screen w-screen text-white px-10">
-        <Navbar></Navbar>
+      <div className="bg-zinc-100 min-h-screen w-screen text-black">
+        {/* <Navbar></Navbar>
         <Landing></Landing>
         <About></About>
         <Footer></Footer>
+        <Dashboard /> */}
+        {/* <Login /> */}
+        <Register />
+      </div>
+      {/* <div className="bg-white min-h-screen w-screen text-black">
         <Dashboard />
       </div> */}
-      <div className="bg-white min-h-screen w-screen text-black">
-        <Dashboard />
-      </div>
     </>
   );
 }
