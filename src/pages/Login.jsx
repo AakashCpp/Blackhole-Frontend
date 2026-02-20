@@ -2,11 +2,14 @@ import React, { useState, useCallback } from "react";
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   // Naya state password visibility ke liye
   const [showPassword, setShowPassword] = useState(false);
@@ -208,12 +211,14 @@ export default function Login() {
 
           <div className="flex items-center justify-between text-sm">
             <button
+              onClick={() => navigate("/forget-password")}
               type="button"
               className="text-orange-400 hover:text-orange-300 transition-colors"
             >
               Forgot password?
             </button>
             <button
+              onClick={() => navigate("/register")}
               type="button"
               className="text-orange-400 hover:text-amber-400 transition-colors"
             >
