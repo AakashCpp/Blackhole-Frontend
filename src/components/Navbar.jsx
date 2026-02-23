@@ -102,9 +102,10 @@ function Navbar() {
             exit={{ opacity: 0, y: -10, x: 20 }}
             transition={{ duration: 0.3 }}
           >
-            <NavItem text="Docs" />
+            <NavItem text="Home" />
             <NavItem text="About" />
-            <NavItem text="Scan" />
+            <NavItem text="UrlScan" />
+            <NavItem text="Public Scan" />
             <NavItem text="Dashboard" />
           </motion.div>
         )}

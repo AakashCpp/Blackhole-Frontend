@@ -11,12 +11,11 @@ import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import PublicLayout from "./layouts/PublicLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
-import ScannerLoaderUI from "./components/Loaders/norm/ScannerWidget";
+import PhishingScanner from "./pages/PhishingPage";
 
 function App() {
   return (
     <>
-      <ScannerLoaderUI />
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
@@ -27,6 +26,7 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/forget-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/phishingPage" element={<PhishingScanner />} />
         </Route>
 
         <Route element={<DashboardLayout />}>
