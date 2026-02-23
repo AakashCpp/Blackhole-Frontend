@@ -257,18 +257,11 @@ function Dashboard() {
 
           {/* ===== MAIN CONTENT ===== */}
           <main className="flex-1 p-10 text-slate-700">
-            {/* <Profile /> */}
-            {/* <Scanners /> */}
-            {/* <NetworkMap /> */}
-            {/* <Analytics /> */}
-            {/* <DashHistory /> */}
+            {active === "profile" && <Profile />}
+            {active === "scanners" && <Scanners />}
+            {active === "network" && <NetworkMap />}
+            {active === "analytics" && <Analytics />}
           </main>
-          {/* <main className="flex-1 p-10 text-slate-700">
-          {active === "profile" && <Profile />}
-          {active === "scanners" && <Scanners />}
-          {active === "network" && <NetworkMap />}
-          {active === "analytics" && <Analytics />}
-        </main> */}
         </div>
       </div>
     </>

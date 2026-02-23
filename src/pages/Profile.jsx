@@ -30,7 +30,7 @@ import {
 const INITIAL_USER_DATA = {
   name: "Alex Sterling",
   username: "@alex_sec",
-  email: "alex@cybersentinel.com", // Added Email
+  email: "alex@cybersentinel.com",
   role: "Lead Penetration Tester",
   company: "CyberSentinel X",
   bio: "Security researcher specializing in web application security and automated vulnerability assessment. Building tools to make the web safer.",
@@ -54,13 +54,13 @@ const MOODS = [
 ];
 
 const ACTIVITY_DATA = [
-  { day: "M", value: 40 },
-  { day: "T", value: 70 },
-  { day: "W", value: 50 },
-  { day: "T", value: 90 },
-  { day: "F", value: 60 },
-  { day: "S", value: 30 },
-  { day: "S", value: 45 },
+  { day: "Mon", value: 40 },
+  { day: "Tue", value: 70 },
+  { day: "Wed", value: 50 },
+  { day: "Thu", value: 90 },
+  { day: "Fri", value: 60 },
+  { day: "Sat", value: 30 },
+  { day: "Sun", value: 45 },
 ];
 
 const SKILL_RADAR_DATA = [
@@ -109,24 +109,21 @@ const SCAN_HISTORY = [
 
 // --- COMPONENTS ---
 
-// 1. UPDATED EDIT PROFILE MODAL (Ab Har Cheez Editable Hai)
+// 1. GLASSMORPHISM EDIT PROFILE MODAL
 const EditProfileModal = ({ data, onClose, onSave }) => {
   const [formData, setFormData] = useState({ ...data });
 
-  const handleSkillChange = (e) => {
+  const handleSkillChange = (e) =>
     setFormData({
       ...formData,
       skills: e.target.value.split(",").map((s) => s.trim()),
     });
-  };
-
-  // Profile Image Upload Handler (Simulation)
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData({ ...formData, avatar: imageUrl });
-    }
+    if (e.target.files[0])
+      setFormData({
+        ...formData,
+        avatar: URL.createObjectURL(e.target.files[0]),
+      });
   };
 
   return (
@@ -134,35 +131,32 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4"
     >
       <motion.div
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-white/70 backdrop-blur-2xl border border-white/50 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
-        {/* Header */}
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <div className="p-6 border-b border-white/40 flex justify-between items-center bg-white/30">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <Edit3 size={20} className="text-indigo-600" /> Edit Profile
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+            className="p-2 hover:bg-white/50 rounded-full transition-colors"
           >
             <X size={20} />
           </button>
         </div>
-
-        {/* Scrollable Body */}
-        <div className="p-8 space-y-6 overflow-y-auto">
-          {/* 1. Avatar Update */}
-          <div className="flex items-center gap-6 pb-6 border-b border-gray-100">
+        <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
+          <div className="flex items-center gap-6 pb-6 border-b border-white/40">
             <div className="relative group cursor-pointer w-24 h-24">
               <img
                 src={formData.avatar}
                 alt="Avatar"
-                className="w-full h-full rounded-full border-4 border-white shadow-lg object-cover bg-gray-100"
+                className="w-full h-full rounded-full border-4 border-white/80 shadow-lg object-cover bg-gray-100"
               />
               <label
                 htmlFor="avatar-upload"
@@ -180,80 +174,74 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
             </div>
             <div>
               <h3 className="font-bold text-gray-900">Profile Photo</h3>
-              <p className="text-xs text-gray-500 mt-1 mb-2">
+              <p className="text-xs text-gray-500 mt-1 mb-3">
                 Click the image to upload a new one.
               </p>
               <label
                 htmlFor="avatar-upload"
-                className="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-100 transition-colors cursor-pointer"
+                className="bg-indigo-600/10 text-indigo-700 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-600/20 transition-colors cursor-pointer border border-indigo-200/50"
               >
                 Upload New
               </label>
             </div>
           </div>
-
-          {/* 2. Personal Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Full Name
-              </label>
-              <div className="relative">
-                <User
-                  size={16}
-                  className="absolute left-3 top-3.5 text-gray-400"
-                />
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                />
+            {[
+              { label: "Full Name", icon: User, key: "name", type: "text" },
+              {
+                label: "Username",
+                icon: () => (
+                  <span className="absolute left-3 top-3.5 text-gray-400 font-bold">
+                    @
+                  </span>
+                ),
+                key: "username",
+                type: "text",
+              },
+              {
+                label: "Role / Title",
+                icon: Briefcase,
+                key: "role",
+                type: "text",
+              },
+              { label: "Email", icon: Mail, key: "email", type: "email" },
+              {
+                label: "Location",
+                icon: MapPin,
+                key: "location",
+                type: "text",
+              },
+              { label: "Website", icon: Globe, key: "website", type: "text" },
+            ].map((field) => (
+              <div key={field.key} className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                  {field.label}
+                </label>
+                <div className="relative">
+                  {field.icon !== User &&
+                  field.icon !== Briefcase &&
+                  field.icon !== Mail &&
+                  field.icon !== MapPin &&
+                  field.icon !== Globe ? (
+                    <field.icon />
+                  ) : (
+                    <field.icon
+                      size={16}
+                      className="absolute left-3 top-3.5 text-gray-400"
+                    />
+                  )}
+                  <input
+                    type={field.type}
+                    value={formData[field.key]}
+                    onChange={(e) =>
+                      setFormData({ ...formData, [field.key]: e.target.value })
+                    }
+                    className="w-full pl-10 p-3 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  />
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Username
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-3.5 text-gray-400 font-bold">
-                  @
-                </span>
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData({ ...formData, username: e.target.value })
-                  }
-                  className="w-full pl-8 p-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Role / Title
-              </label>
-              <div className="relative">
-                <Briefcase
-                  size={16}
-                  className="absolute left-3 top-3.5 text-gray-400"
-                />
-                <input
-                  type="text"
-                  value={formData.role}
-                  onChange={(e) =>
-                    setFormData({ ...formData, role: e.target.value })
-                  }
-                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
+            ))}
+            <div className="space-y-1.5 md:col-span-2">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Company
               </label>
@@ -263,71 +251,10 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, company: e.target.value })
                 }
-                className="w-full p-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
+                className="w-full p-3 pl-4 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
               />
             </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Email
-              </label>
-              <div className="relative">
-                <Mail
-                  size={16}
-                  className="absolute left-3 top-3.5 text-gray-400"
-                />
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Location
-              </label>
-              <div className="relative">
-                <MapPin
-                  size={16}
-                  className="absolute left-3 top-3.5 text-gray-400"
-                />
-                <input
-                  type="text"
-                  value={formData.location}
-                  onChange={(e) =>
-                    setFormData({ ...formData, location: e.target.value })
-                  }
-                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Website
-              </label>
-              <div className="relative">
-                <Globe
-                  size={16}
-                  className="absolute left-3 top-3.5 text-gray-400"
-                />
-                <input
-                  type="text"
-                  value={formData.website}
-                  onChange={(e) =>
-                    setFormData({ ...formData, website: e.target.value })
-                  }
-                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                />
-              </div>
-            </div>
           </div>
-
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
               Bio
@@ -338,10 +265,9 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
               onChange={(e) =>
                 setFormData({ ...formData, bio: e.target.value })
               }
-              className="w-full p-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all resize-none"
+              className="w-full p-4 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none"
             />
           </div>
-
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
               Skills (Comma separated)
@@ -350,22 +276,20 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
               type="text"
               value={formData.skills.join(", ")}
               onChange={handleSkillChange}
-              className="w-full p-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
+              className="w-full p-3 pl-4 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
             />
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+        <div className="p-6 border-t border-white/40 bg-white/30 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl text-gray-600 font-medium hover:bg-gray-200"
+            className="px-5 py-2.5 rounded-xl text-gray-600 font-medium hover:bg-white/60 border border-transparent hover:border-white/50 transition-all"
           >
             Cancel
           </button>
           <button
             onClick={() => onSave(formData)}
-            className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2 shadow-lg shadow-indigo-200"
+            className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
           >
             <Save size={18} /> Save Changes
           </button>
@@ -378,20 +302,7 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
 // 2. HACKER MODE TERMINAL
 const HackerTerminal = ({ data, onClose }) => {
   const [text, setText] = useState("");
-  const fullText = `> ESTABLISHING SECURE CONNECTION...
-> IDENTITY: ${data.username}
-> TARGET: ${data.name}
-> ROLE: ${data.role}
-> ORG: ${data.company}
-> LOC: ${data.location}
->
-> DECRYPTING BIO...
-> "${data.bio}"
->
-> ANALYSIS COMPLETE.
-> SKILLS: [${data.skills.join(", ")}]
->
-> READY FOR COMMAND._`;
+  const fullText = `> ESTABLISHING SECURE CONNECTION...\n> IDENTITY: ${data.username}\n> TARGET: ${data.name}\n> ROLE: ${data.role}\n> ORG: ${data.company}\n> LOC: ${data.location}\n>\n> DECRYPTING BIO...\n> "${data.bio}"\n>\n> ANALYSIS COMPLETE.\n> SKILLS: [${data.skills.join(", ")}]\n>\n> READY FOR COMMAND._`;
 
   useEffect(() => {
     let i = 0;
@@ -436,16 +347,14 @@ const HackerTerminal = ({ data, onClose }) => {
   );
 };
 
-// 3. RADAR CHART
+// 3. SPIDER/RADAR CHART
 const SkillRadar = () => {
-  const size = 200;
-  const center = size / 2;
-  const radius = 80;
+  const size = 200,
+    center = size / 2,
+    radius = 80;
   const getPoint = (value, index, total) => {
     const angle = (Math.PI * 2 * index) / total - Math.PI / 2;
-    const x = center + radius * (value / 100) * Math.cos(angle);
-    const y = center + radius * (value / 100) * Math.sin(angle);
-    return `${x},${y}`;
+    return `${center + radius * (value / 100) * Math.cos(angle)},${center + radius * (value / 100) * Math.sin(angle)}`;
   };
   const polyPoints = SKILL_RADAR_DATA.map((d, i) =>
     getPoint(d.A, i, SKILL_RADAR_DATA.length),
@@ -453,6 +362,7 @@ const SkillRadar = () => {
   const bgPoints = SKILL_RADAR_DATA.map((d, i) =>
     getPoint(100, i, SKILL_RADAR_DATA.length),
   ).join(" ");
+
   return (
     <div className="flex flex-col items-center justify-center h-full w-full">
       <svg
@@ -464,7 +374,7 @@ const SkillRadar = () => {
         <polygon
           points={bgPoints}
           fill="none"
-          stroke="#e2e8f0"
+          stroke="rgba(226, 232, 240, 0.5)"
           strokeWidth="1"
         />
         {[25, 50, 75].map((tick) => (
@@ -474,7 +384,7 @@ const SkillRadar = () => {
               getPoint(tick, i, SKILL_RADAR_DATA.length),
             ).join(" ")}
             fill="none"
-            stroke="#f1f5f9"
+            stroke="rgba(241, 245, 249, 0.5)"
             strokeWidth="1"
           />
         ))}
@@ -482,7 +392,7 @@ const SkillRadar = () => {
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 0.7, scale: 1 }}
           points={polyPoints}
-          fill="rgba(99, 102, 241, 0.2)"
+          fill="rgba(99, 102, 241, 0.3)"
           stroke="#6366f1"
           strokeWidth="2"
         />
@@ -506,54 +416,133 @@ const SkillRadar = () => {
   );
 };
 
-// 4. SHARE CARD
-const ShareCardModal = ({ data, onClose }) => {
+// 4. MOUNTAIN GRAPH (AREA CHART) - FIXED OVERFLOW
+const MountainGraph = () => {
+  const maxVal = 100;
+  // Map data to coordinates (X: 0 to 100%, Y: 0 to 100% inverted)
+  const points = ACTIVITY_DATA.map((d, i) => {
+    const x = (i / (ACTIVITY_DATA.length - 1)) * 100;
+    const y = 100 - (d.value / maxVal) * 100;
+    return `${x},${y}`;
+  });
+
+  const pathString = `M 0,100 L 0,${100 - ACTIVITY_DATA[0].value} L ${points.join(" L ")} L 100,100 Z`;
+  const lineString = `M 0,${100 - ACTIVITY_DATA[0].value} L ${points.join(" L ")}`;
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
-    >
-      <div className="flex flex-col items-center gap-6">
-        <motion.div
-          initial={{ scale: 0.9, rotateX: 20 }}
-          animate={{ scale: 1, rotateX: 0 }}
-          className="bg-white w-85 rounded-3xl overflow-hidden shadow-2xl relative"
+    <div className="w-full h-full flex flex-col pt-2">
+      <div className="flex-1 relative w-full min-h-0 mt-2">
+        {/* Graph Paths (SVG) */}
+        <svg
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          className="absolute inset-0 w-full h-full overflow-visible"
         >
-          <div className="h-32 bg-linear-to-tr from-violet-600 via-indigo-500 to-cyan-400"></div>
-          <div className="px-6 pb-8 text-center relative">
-            <div className="w-24 h-24 mx-auto -mt-12 rounded-full border-4 border-white shadow-lg bg-white p-1">
-              <img
-                src={data.avatar}
-                alt="Profile"
-                className="w-full h-full rounded-full object-cover"
-              />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mt-3">
-              {data.name}
-            </h2>
-            <p className="text-sm text-gray-500 font-medium">{data.role}</p>
-            <div className="my-6 p-4 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col items-center justify-center">
-              <QrCode size={120} className="text-gray-800" />
-              <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-widest">
-                Scan to Connect
-              </p>
-            </div>
-          </div>
-        </motion.div>
-        <button
-          onClick={onClose}
-          className="p-3 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur"
-        >
-          <X size={24} />
-        </button>
+          <defs>
+            <linearGradient id="mountainGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(99, 102, 241, 0.4)" />
+              <stop offset="100%" stopColor="rgba(99, 102, 241, 0.0)" />
+            </linearGradient>
+          </defs>
+          <motion.path
+            d={pathString}
+            fill="url(#mountainGrad)"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          />
+          <motion.path
+            d={lineString}
+            fill="none"
+            stroke="#6366f1"
+            strokeWidth="1.5"
+            vectorEffect="non-scaling-stroke"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+          />
+        </svg>
+
+        {/* HTML OVERLAYS FOR PERFECT CIRCULAR DOTS */}
+        {points.map((p, i) => {
+          const [x, y] = p.split(",");
+          return (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-white border-[1.5px] border-indigo-500 rounded-full z-10 shadow-sm"
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+                x: "-50%", // Centers the dot directly over the coordinate
+                y: "-50%", // Centers the dot directly over the coordinate
+              }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 + i * 0.1 }}
+            />
+          );
+        })}
       </div>
-    </motion.div>
+
+      {/* X-Axis Labels */}
+      <div className="flex justify-between items-end mt-2 px-1">
+        {ACTIVITY_DATA.map((d, i) => (
+          <span
+            key={i}
+            className="text-[10px] font-bold text-gray-400 uppercase"
+          >
+            {d.day}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 };
 
-// 5. MOOD PICKER
+// 5. SHARE CARD
+const ShareCardModal = ({ data, onClose }) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+  >
+    <div className="flex flex-col items-center gap-6">
+      <motion.div
+        initial={{ scale: 0.9, rotateX: 20 }}
+        animate={{ scale: 1, rotateX: 0 }}
+        className="bg-white/80 backdrop-blur-xl border border-white/50 w-85 rounded-3xl overflow-hidden shadow-2xl relative"
+      >
+        <div className="h-32 bg-linear-to-tr from-violet-600/80 via-indigo-500/80 to-cyan-400/80 backdrop-blur"></div>
+        <div className="px-6 pb-8 text-center relative">
+          <div className="w-24 h-24 mx-auto -mt-12 rounded-full border-4 border-white shadow-lg bg-white p-1">
+            <img
+              src={data.avatar}
+              alt="Profile"
+              className="w-full h-full rounded-full object-cover"
+            />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mt-3">{data.name}</h2>
+          <p className="text-sm text-gray-500 font-medium">{data.role}</p>
+          <div className="my-6 p-4 bg-white/50 backdrop-blur rounded-2xl border border-white/80 flex flex-col items-center justify-center shadow-inner">
+            <QrCode size={120} className="text-gray-800" />
+            <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-widest">
+              Scan to Connect
+            </p>
+          </div>
+        </div>
+      </motion.div>
+      <button
+        onClick={onClose}
+        className="p-3 bg-white/20 text-white rounded-full hover:bg-white/30 backdrop-blur transition-all border border-white/30"
+      >
+        <X size={24} />
+      </button>
+    </div>
+  </motion.div>
+);
+
+// 6. MOOD PICKER
 const MoodPicker = ({ currentMood, setMood }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -562,7 +551,7 @@ const MoodPicker = ({ currentMood, setMood }) => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white text-xl p-2 rounded-full shadow-md border border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer z-10 relative"
+        className="bg-white/80 backdrop-blur text-xl p-2 rounded-full shadow-lg border border-white/50 hover:bg-white transition-colors cursor-pointer z-10 relative"
       >
         {currentMood.icon}
       </motion.button>
@@ -577,7 +566,7 @@ const MoodPicker = ({ currentMood, setMood }) => {
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute top-12 left-0 z-20 bg-white p-2 rounded-xl shadow-xl border border-gray-100 w-40 flex flex-col gap-1"
+              className="absolute top-12 left-0 z-20 bg-white/90 backdrop-blur-xl p-2 rounded-xl shadow-xl border border-white/50 w-40 flex flex-col gap-1"
             >
               <p className="text-[10px] text-gray-400 font-bold px-2 py-1 uppercase">
                 Current Mood
@@ -589,7 +578,7 @@ const MoodPicker = ({ currentMood, setMood }) => {
                     setMood(m);
                     setIsOpen(false);
                   }}
-                  className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded-lg text-sm text-gray-700 text-left transition-colors"
+                  className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 text-left transition-colors"
                 >
                   <span>{m.icon}</span>
                   <span>{m.label}</span>
@@ -603,23 +592,24 @@ const MoodPicker = ({ currentMood, setMood }) => {
   );
 };
 
-// 6. STAT CARD
+// 7. STAT CARD
 const StatCard = ({ label, value, icon: Icon, color }) => (
-  <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-start justify-between">
+  <div className="bg-white/60 backdrop-blur-xl p-5 rounded-2xl border border-white/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_4px_25px_rgb(0,0,0,0.06)] transition-all flex items-start justify-between">
     <div>
-      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-1">
+      <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">
         {label}
       </p>
-      <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
+      <h3 className="text-2xl font-extrabold text-gray-900">{value}</h3>
     </div>
-    <div className={`p-2 rounded-lg ${color}`}>
+    <div
+      className={`p-2.5 rounded-xl bg-white/50 shadow-sm border border-white/60 ${color}`}
+    >
       <Icon size={20} />
     </div>
   </div>
 );
 
 // --- MAIN PAGE ---
-
 export default function ProfilePage() {
   const [userData, setUserData] = useState(INITIAL_USER_DATA);
   const [mood, setMood] = useState(MOODS[0]);
@@ -628,19 +618,24 @@ export default function ProfilePage() {
   const [isHackerMode, setIsHackerMode] = useState(false);
   const [showRadar, setShowRadar] = useState(false);
 
-  const handleSaveProfile = (updatedData) => {
-    setUserData(updatedData);
-    setIsEditing(false);
-  };
-
   return (
-    <div className="bg-gray-50/50 min-h-screen font-sans">
+    <div className="bg-slate-50 min-h-screen font-sans relative overflow-hidden p-4 md:p-8">
+      {/* Ambient Glassmorphism Blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-125 h-125 bg-indigo-300/30 rounded-full mix-blend-multiply filter blur-[80px] opacity-70 animate-pulse pointer-events-none"></div>
+      <div
+        className="absolute bottom-[-10%] right-[-5%] w-100 h-100 bg-sky-300/30 rounded-full mix-blend-multiply filter blur-[80px] opacity-70 animate-pulse pointer-events-none"
+        style={{ animationDelay: "2s" }}
+      ></div>
+
       <AnimatePresence>
         {isEditing && (
           <EditProfileModal
             data={userData}
             onClose={() => setIsEditing(false)}
-            onSave={handleSaveProfile}
+            onSave={(d) => {
+              setUserData(d);
+              setIsEditing(false);
+            }}
           />
         )}
         {isSharing && (
@@ -654,30 +649,30 @@ export default function ProfilePage() {
         )}
       </AnimatePresence>
 
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* HEADER */}
+      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
+        {/* HEADER CARD */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl shadow-sm overflow-hidden border border-gray-100"
+          className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-white/80"
         >
-          <div className="h-32 bg-linear-to-r from-gray-100 via-slate-200 to-indigo-100 relative">
+          <div className="h-32 bg-linear-to-r from-gray-100/50 via-slate-200/50 to-indigo-100/50 relative">
             <div className="absolute right-6 top-6 flex gap-3">
               <button
                 onClick={() => setIsHackerMode(true)}
-                className="bg-black/80 backdrop-blur text-green-400 px-3 py-2 rounded-lg text-sm font-bold font-mono flex items-center gap-2 hover:bg-black transition-colors border border-green-900 shadow-xl"
+                className="bg-black/80 backdrop-blur text-green-400 px-3 py-2 rounded-xl text-sm font-bold font-mono flex items-center gap-2 hover:bg-black transition-colors border border-green-900 shadow-lg"
               >
                 <Code size={16} />
               </button>
               <button
                 onClick={() => setIsSharing(true)}
-                className="bg-white/80 backdrop-blur text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-white transition-colors"
+                className="bg-white/80 backdrop-blur text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-white transition-colors border border-white/50 shadow-sm"
               >
-                <Share2 size={16} /> Share Profile
+                <Share2 size={16} /> Share
               </button>
               <button
                 onClick={() => setIsEditing(true)}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
+                className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
               >
                 <Edit3 size={16} /> Edit Profile
               </button>
@@ -686,11 +681,11 @@ export default function ProfilePage() {
           <div className="px-8 pb-8">
             <div className="flex flex-col md:flex-row gap-6 items-start">
               <div className="relative -mt-12">
-                <div className="w-32 h-32 rounded-3xl bg-gray-900 border-4 border-white shadow-lg overflow-hidden flex items-center justify-center text-white text-4xl font-bold p-1">
+                <div className="w-32 h-32 rounded-3xl bg-white border-4 border-white shadow-xl overflow-hidden flex items-center justify-center p-1">
                   <img
                     src={userData.avatar}
                     alt="Profile"
-                    className="w-full h-full object-cover rounded-2xl"
+                    className="w-full h-full object-cover rounded-2xl bg-gray-50"
                   />
                 </div>
                 <MoodPicker currentMood={mood} setMood={setMood} />
@@ -698,48 +693,49 @@ export default function ProfilePage() {
               <div className="flex-1 pt-4">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900">
+                    <h1 className="text-3xl font-extrabold text-gray-900">
                       {userData.name}
+                      <p className="text-sm text-zinc-700">
+                        {userData.username}
+                      </p>
                     </h1>
-                    <p className="text-gray-500 font-medium">
+                    <p className="text-gray-500 font-bold mt-1">
                       {userData.role} at{" "}
                       <span className="text-gray-900">{userData.company}</span>
                     </p>
                   </div>
-                  <div className="flex gap-3">
-                    <button className="bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 shadow-lg shadow-gray-200 hover:bg-gray-800 transition-all">
-                      <Download size={16} /> Download Resume
-                    </button>
-                  </div>
+                  <button className="bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:bg-gray-800 transition-all active:scale-95">
+                    <Download size={16} /> Resume
+                  </button>
                 </div>
-                <p className="mt-4 text-gray-600 max-w-2xl leading-relaxed">
+                <p className="mt-4 text-gray-600 max-w-2xl leading-relaxed font-medium">
                   {userData.bio}
                 </p>
-                <div className="mt-6 flex flex-wrap gap-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} className="text-gray-400" />{" "}
+                <div className="mt-6 flex flex-wrap gap-4 text-sm text-gray-500 font-semibold">
+                  <div className="flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 shadow-sm">
+                    <MapPin size={16} className="text-indigo-500" />{" "}
                     {userData.location}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Mail size={16} className="text-gray-400" />{" "}
+                  <div className="flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 shadow-sm">
+                    <Mail size={16} className="textindigo-500" />{" "}
                     {userData.email}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <LinkIcon size={16} className="text-gray-400" />{" "}
+                  <div className="flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 shadow-sm">
+                    <LinkIcon size={16} className="text-indigo-500" />{" "}
                     {userData.website}
                   </div>
                 </div>
               </div>
             </div>
-            <div className="mt-8 pt-6 border-t border-gray-100">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+            <div className="mt-8 pt-6 border-t border-white/40">
+              <p className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">
                 Core Technologies
               </p>
               <div className="flex flex-wrap gap-2">
                 {userData.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-md border border-gray-200"
+                    className="px-4 py-1.5 bg-indigo-50/50 backdrop-blur text-indigo-700 text-xs font-bold rounded-lg border border-indigo-100 shadow-sm"
                   >
                     {skill}
                   </span>
@@ -753,88 +749,72 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-4">
             <StatCard
-              label="Total Scans Performed"
+              label="Total Scans"
               value={userData.stats.scans}
               icon={Terminal}
-              color="bg-blue-50 text-blue-600"
+              color="text-indigo-600"
             />
             <StatCard
-              label="Vulnerabilities Found"
+              label="Issues Fixed"
               value={userData.stats.issuesFixed}
               icon={AlertCircle}
-              color="bg-red-50 text-red-600"
+              color="text-rose-600"
             />
             <StatCard
-              label="Platform Reputation"
+              label="Reputation"
               value={userData.stats.reputation}
               icon={Shield}
-              color="bg-emerald-50 text-emerald-600"
+              color="text-emerald-600"
             />
           </div>
 
-          <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col h-80 relative">
+          <div className="lg:col-span-2 bg-white/60 backdrop-blur-xl p-6 rounded-2xl border border-white/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] flex flex-col h-80 relative">
             <div className="flex justify-between items-start mb-2 z-10">
               <div>
-                <h3 className="font-bold text-gray-900">Performance Metrics</h3>
-                <p className="text-sm text-gray-500">
+                <h3 className="font-extrabold text-gray-900 text-lg">
+                  Performance Metrics
+                </h3>
+                <p className="text-sm font-semibold text-gray-500">
                   {showRadar
                     ? "Skill Balance Matrix"
-                    : "Weekly Activity Consistency"}
+                    : "Weekly Activity Consistancy"}
                 </p>
               </div>
-              <div className="flex bg-gray-100 p-1 rounded-lg">
+              <div className="flex bg-white/50 p-1 rounded-xl border border-white/80 shadow-sm">
                 <button
                   onClick={() => setShowRadar(false)}
-                  className={`p-1.5 rounded-md transition-all ${!showRadar ? "bg-white shadow text-indigo-600" : "text-gray-400 hover:text-gray-600"}`}
+                  className={`p-2 rounded-lg transition-all ${!showRadar ? "bg-white shadow text-indigo-600" : "text-gray-400 hover:text-gray-600"}`}
                 >
                   <BarChart3 size={16} />
                 </button>
                 <button
                   onClick={() => setShowRadar(true)}
-                  className={`p-1.5 rounded-md transition-all ${showRadar ? "bg-white shadow text-indigo-600" : "text-gray-400 hover:text-gray-600"}`}
+                  className={`p-2 rounded-lg transition-all ${showRadar ? "bg-white shadow text-indigo-600" : "text-gray-400 hover:text-gray-600"}`}
                 >
                   <Radar size={16} />
                 </button>
               </div>
             </div>
-            <div className="flex-1 flex items-end justify-center w-full relative">
+            {/* Added min-h-0 here to ensure the graph respects this container's height bounds */}
+            <div className="flex-1 w-full relative min-h-0">
               <AnimatePresence mode="wait">
                 {!showRadar ? (
                   <motion.div
-                    key="bar-chart"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex items-end justify-between w-full h-48 gap-4 px-2"
+                    key="mountain-chart"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="w-full h-full"
                   >
-                    {ACTIVITY_DATA.map((item, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 flex flex-col items-center gap-2 group cursor-pointer"
-                      >
-                        <div className="w-full bg-gray-100 rounded-t-lg relative overflow-hidden group-hover:bg-indigo-100 transition-colors h-45 flex items-end">
-                          <motion.div
-                            initial={{ height: 0 }}
-                            animate={{ height: `${item.value}%` }}
-                            transition={{ duration: 0.8, delay: i * 0.1 }}
-                            className="w-full bg-gray-900 opacity-90 group-hover:bg-indigo-600 transition-colors"
-                          />
-                        </div>
-                        <span className="text-xs font-medium text-gray-400 group-hover:text-indigo-600">
-                          {item.day}
-                        </span>
-                      </div>
-                    ))}
+                    <MountainGraph />
                   </motion.div>
                 ) : (
                   <motion.div
                     key="radar-chart"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full h-full flex items-center justify-center pb-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="w-full h-full flex items-center justify-center"
                   >
                     <SkillRadar />
                   </motion.div>
@@ -847,23 +827,23 @@ export default function ProfilePage() {
         {/* SECTION 3: HISTORY */}
         <div className="space-y-4">
           <div className="flex items-center justify-between px-2">
-            <h3 className="font-bold text-lg text-gray-900">
+            <h3 className="font-extrabold text-xl text-gray-900">
               Recent Scan History
             </h3>
-            <button className="text-sm text-indigo-600 font-medium hover:underline">
+            <button className="text-sm text-indigo-600 font-bold hover:underline">
               View Full Log
             </button>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="divide-y divide-gray-50">
+          <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] overflow-hidden">
+            <div className="divide-y divide-white/40">
               {SCAN_HISTORY.map((scan) => (
                 <motion.div
                   key={scan.id}
-                  whileHover={{ backgroundColor: "rgba(249, 250, 251, 1)" }}
-                  className="p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-4 transition-colors cursor-pointer group"
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.4)" }}
+                  className="p-5 flex flex-col md:flex-row md:items-center gap-4 transition-colors cursor-pointer group"
                 >
                   <div
-                    className={`p-2 rounded-lg w-fit ${scan.status === "Clean" ? "bg-green-100 text-green-600" : scan.status === "Flagged" ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-500"}`}
+                    className={`p-3 rounded-xl shadow-sm border border-white/60 ${scan.status === "Clean" ? "bg-emerald-50 text-emerald-600" : scan.status === "Flagged" ? "bg-rose-50 text-rose-600" : "bg-gray-50 text-gray-500"}`}
                   >
                     {scan.status === "Clean" ? (
                       <CheckCircle2 size={20} />
@@ -874,25 +854,25 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <h4 className="font-semibold text-gray-900">
+                    <div className="flex items-center gap-3 mb-1.5">
+                      <h4 className="font-bold text-gray-900 text-lg">
                         {scan.target}
                       </h4>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded border ${scan.risk === "High" ? "bg-red-50 text-red-600 border-red-100" : scan.risk === "Medium" ? "bg-orange-50 text-orange-600 border-orange-100" : "bg-green-50 text-green-600 border-green-100"}`}
+                        className={`text-[10px] font-extrabold px-2.5 py-1 rounded-md border ${scan.risk === "High" ? "bg-rose-50/50 text-rose-600 border-rose-200" : scan.risk === "Medium" ? "bg-amber-50/50 text-amber-600 border-amber-200" : "bg-emerald-50/50 text-emerald-600 border-emerald-200"}`}
                       >
                         {scan.risk.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                    <p className="text-sm font-semibold text-gray-500 flex items-center gap-2">
                       <Cpu size={14} /> {scan.method}
                     </p>
                   </div>
-                  <div className="flex items-center gap-6 text-sm text-gray-400 md:pl-10">
-                    <span className="hidden md:flex items-center gap-1">
-                      <Calendar size={14} /> {scan.time}
+                  <div className="flex items-center gap-6 text-sm font-bold text-gray-400 md:pl-10">
+                    <span className="hidden md:flex items-center gap-1.5">
+                      <Calendar size={16} /> {scan.time}
                     </span>
-                    <button className="opacity-0 group-hover:opacity-100 text-gray-900 font-medium text-xs bg-gray-100 px-3 py-1.5 rounded-lg transition-all hover:bg-gray-200">
+                    <button className="opacity-0 group-hover:opacity-100 text-indigo-600 font-bold text-xs bg-white border border-white shadow-sm px-4 py-2 rounded-xl transition-all hover:shadow-md">
                       View Report
                     </button>
                   </div>

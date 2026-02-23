@@ -1,387 +1,299 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Shield,
-  Globe,
   Search,
-  Zap,
   Server,
-  AlertTriangle,
   Play,
-  Terminal,
-  CheckCircle2,
   Loader2,
-  Lock,
-  Mail,
-  Bug,
-  Link,
-  FileText,
+  CheckCircle,
+  Tag,
+  Eye,
+  ShieldCheck,
+  Plus,
 } from "lucide-react";
 
-// --- TOOLS CONFIGURATION ---
-const TOOLS = [
-  {
-    id: "web-scan",
-    title: "Web Scanner",
-    description:
-      "General reconnaissance. Analyzes site structure, technologies, and HTTP headers.",
-    icon: Globe,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-    glow: "shadow-blue-200",
-  },
-  {
-    id: "vuln-scan",
-    title: "Vulnerability Scanner",
-    description:
-      "Deep offensive scan. Tests for SQLi, XSS, CVEs, and server misconfigurations.",
-    icon: Bug, // Changed to Bug icon for Vuln
-    color: "text-violet-600",
-    bg: "bg-violet-50",
-    glow: "shadow-violet-200",
-  },
-  {
-    id: "phishing-detect",
-    title: "Phishing Detection",
-    description:
-      "Hybrid analysis. Detects malicious URLs and analyzes email content for fraud.",
-    icon: Mail,
-    color: "text-rose-600",
-    bg: "bg-rose-50",
-    glow: "shadow-rose-200",
-  },
-];
-
-// --- FAKE TERMINAL LOGS ---
-const LOG_STEPS = {
-  "web-scan": [
-    "> Initializing Spider (Crawler)...",
-    "> GET /robots.txt [FOUND]",
-    "> Detecting CMS and Frameworks...",
-    "> Analyzing HTTP Security Headers...",
-    "> Mapping Sitemap structure...",
-    "> Web Reconnaissance Complete.",
-  ],
-  "vuln-scan": [
-    "> Loading Exploit Database (CVE-2024)...",
-    "> Fuzzing input parameters...",
-    "> Testing payload: ' OR 1=1 --",
-    "> Checking Reflected XSS...",
-    "> Scanning for Open Redirects...",
-    "> ALERT: Potential vulnerability found at /admin",
-    "> Report Generation Started.",
-  ],
-  "phishing-url": [
-    "> Resolving Domain DNS...",
-    "> Checking WHOIS creation date...",
-    "> Analyzing SSL Certificate Authority...",
-    "> Cross-referencing PhishTank Database...",
-    "> Heuristic Analysis: Suspicious Patterns...",
-    "> VERDICT: POTENTIALLY UNSAFE",
-  ],
-  "phishing-email": [
-    "> Parsing Email Headers (DKIM/SPF)...",
-    "> Analyzing Sender Reputation...",
-    "> Extracting embedded links...",
-    "> NLP Sentiment Analysis: URGENCY DETECTED",
-    "> Checking for homograph attacks...",
-    "> VERDICT: HIGH RISK SCAM",
-  ],
-};
-
 export default function ScannersPage() {
-  const [activeTool, setActiveTool] = useState(TOOLS[0]);
-  const [inputValue, setInputValue] = useState("");
-  const [scanStatus, setScanStatus] = useState("idle"); // idle, scanning, complete
-  const [logs, setLogs] = useState([]);
+  // --- FORM STATES MATCHING BACKEND req.body ---
+  const [title, setTitle] = useState("");
+  const [target, setTarget] = useState("");
+  const [scanType, setScanType] = useState("web"); // 'web' or 'vuln'
+  const [accessibility, setAccessibility] = useState("private"); // 'public' or 'private'
 
-  // Specific State for Phishing Tool (URL vs Email)
-  const [phishingMode, setPhishingMode] = useState("url"); // 'url' or 'email'
+  // --- UI STATES ---
+  const [scanStatus, setScanStatus] = useState("idle"); // 'idle', 'scanning', 'success'
 
-  // Handle Scan Logic
-  const handleStartScan = () => {
-    if (!inputValue) return;
+  const handleStartScan = async (e) => {
+    e.preventDefault();
+    if (!target || !title) return;
+
     setScanStatus("scanning");
-    setLogs([]);
 
-    // Determine which logs to use
-    let logKey = activeTool.id;
-    if (activeTool.id === "phishing-detect") {
-      logKey = phishingMode === "url" ? "phishing-url" : "phishing-email";
-    }
+    // 1. PREPARE PAYLOAD FOR BACKEND
+    const payload = {
+      title,
+      target,
+      type: scanType,
+      accessibility,
+    };
 
-    const currentLogs = LOG_STEPS[logKey];
-    let i = 0;
+    console.log("🚀 Payload ready to send:", payload);
 
-    const interval = setInterval(() => {
-      setLogs((prev) => [...prev, currentLogs[i]]);
-      i++;
-      if (i >= currentLogs.length) {
-        clearInterval(interval);
-        setScanStatus("complete");
+    // =========================================================
+    // TODO: REDUX / API CALL HERE
+    // =========================================================
+    /*
+    try {
+      const res = await fetch('/api/scan/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.success) {
+         setScanStatus("success");
       }
-    }, 800);
+    } catch (error) {
+       console.error(error);
+       setScanStatus("idle"); // reset on error
+    }
+    */
+
+    // 2. SIMULATE API DELAY
+    setTimeout(() => {
+      setScanStatus("success");
+    }, 2500); // 2.5 seconds loading simulation
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setTarget("");
+    setScanType("web");
+    setAccessibility("private");
+    setScanStatus("idle");
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 font-sans text-slate-800 p-4">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* --- 1. TOOL SELECTOR GRID --- */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TOOLS.map((tool) => {
-            const isActive = activeTool.id === tool.id;
-            return (
-              <motion.div
-                key={tool.id}
-                onClick={() => {
-                  setActiveTool(tool);
-                  setScanStatus("idle");
-                  setLogs([]);
-                  setInputValue("");
-                }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`cursor-pointer relative p-6 rounded-2xl border-2 transition-all duration-300 overflow-hidden group ${
-                  isActive
-                    ? `bg-white border-indigo-600 shadow-xl ${tool.glow}`
-                    : "bg-white border-transparent hover:border-gray-200 shadow-sm hover:shadow-md"
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="active-dot"
-                    className="absolute top-4 right-4 w-3 h-3 bg-indigo-600 rounded-full"
-                  />
-                )}
-                <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${tool.bg} ${tool.color}`}
-                >
-                  <tool.icon size={24} />
-                </div>
-                <h3
-                  className={`font-bold text-lg mb-1 ${isActive ? "text-slate-900" : "text-slate-700"}`}
-                >
-                  {tool.title}
-                </h3>
-                <p className="text-sm text-slate-500 leading-relaxed group-hover:text-slate-600">
-                  {tool.description}
-                </p>
-              </motion.div>
-            );
-          })}
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-6 md:p-10 relative flex items-center justify-center overflow-hidden">
+      {/* --- BACKGROUND GLASS BLER/BLOBS --- */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-300/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
+      <div
+        className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-sky-300/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"
+        style={{ animationDelay: "2s" }}
+      ></div>
+
+      <div className="w-full max-w-2xl relative z-10">
+        {/* Header Text */}
+        <div className="text-center mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center justify-center p-4 bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl shadow-sm mb-4"
+          >
+            <ShieldCheck className="text-indigo-600 w-8 h-8" />
+          </motion.div>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Launch New Scan
+          </h1>
+          <p className="text-slate-500 mt-2 font-medium">
+            Configure target parameters for deep vulnerability and
+            reconnaissance scanning.
+          </p>
         </div>
 
-        {/* --- 2. ACTIVE TOOL WORKSPACE --- */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTool.id}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.2 }}
-            className="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden"
-          >
-            {/* Toolbar Header */}
-            <div className="p-6 md:p-8 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex items-center gap-4">
-                <div
-                  className={`p-3 rounded-xl ${activeTool.bg} ${activeTool.color}`}
-                >
-                  <activeTool.icon size={28} />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">
-                    {activeTool.title}
-                  </h2>
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    Module Active
-                  </div>
-                </div>
-              </div>
-
-              {/* PHISHING MODE TOGGLE (Only shows if Phishing Tool is active) */}
-              {activeTool.id === "phishing-detect" && (
-                <div className="flex bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
-                  <button
-                    onClick={() => {
-                      setPhishingMode("url");
-                      setInputValue("");
-                    }}
-                    className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${phishingMode === "url" ? "bg-rose-50 text-rose-600" : "text-slate-500 hover:text-slate-700"}`}
-                  >
-                    <Link size={16} /> Check URL
-                  </button>
-                  <button
-                    onClick={() => {
-                      setPhishingMode("email");
-                      setInputValue("");
-                    }}
-                    className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${phishingMode === "email" ? "bg-rose-50 text-rose-600" : "text-slate-500 hover:text-slate-700"}`}
-                  >
-                    <FileText size={16} /> Analyze Email
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3">
-              {/* --- LEFT: INPUT FORM --- */}
-              <div className="lg:col-span-2 p-6 md:p-8 space-y-6">
-                <div className="space-y-4">
-                  <label className="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
-                    {activeTool.id === "phishing-detect" &&
-                    phishingMode === "email"
-                      ? "Paste Email Content / Headers"
-                      : "Target Input"}
-                  </label>
-
-                  <div className="relative group">
-                    {activeTool.id === "phishing-detect" &&
-                    phishingMode === "email" ? (
-                      /* Text Area for Email Phishing */
-                      <textarea
-                        rows={6}
-                        placeholder="Paste the suspicious email body or raw headers here..."
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        disabled={scanStatus === "scanning"}
-                        className="w-full bg-slate-50 p-4 rounded-xl border-2 border-slate-100 focus:border-indigo-500 focus:bg-white outline-none transition-all font-mono text-sm text-slate-800 disabled:opacity-50 resize-none"
+        {/* --- MAIN GLASSMORPHISM CARD --- */}
+        <motion.div
+          layout
+          className="bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl overflow-hidden"
+        >
+          <AnimatePresence mode="wait">
+            {/* STATE 1: IDLE / FORM */}
+            {scanStatus === "idle" && (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="p-8 md:p-10"
+              >
+                <form onSubmit={handleStartScan} className="space-y-6">
+                  {/* Title & Target */}
+                  <div className="space-y-5">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 ml-1">
+                        <Tag size={14} /> Scan Title
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g., Prod Server Weekly Scan"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="w-full bg-white/50 backdrop-blur-sm px-5 py-4 rounded-2xl border border-slate-200 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
                       />
-                    ) : (
-                      /* Standard Input for URL/Web */
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 ml-1">
+                        <Search size={14} /> Target URL / IP
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="https://example.com or 192.168.1.1"
+                        value={target}
+                        onChange={(e) => setTarget(e.target.value)}
+                        className="w-full bg-white/50 backdrop-blur-sm px-5 py-4 rounded-2xl border border-slate-200 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Dropdowns Row */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 ml-1">
+                        <Server size={14} /> Scan Type
+                      </label>
                       <div className="relative">
-                        <Search
-                          className="absolute left-4 top-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors"
-                          size={20}
-                        />
-                        <input
-                          type="text"
-                          placeholder={
-                            activeTool.id === "web-scan"
-                              ? "https://example.com"
-                              : activeTool.id === "vuln-scan"
-                                ? "IP Address or Domain"
-                                : "https://suspicious-link.net"
-                          }
-                          value={inputValue}
-                          onChange={(e) => setInputValue(e.target.value)}
-                          disabled={scanStatus === "scanning"}
-                          className="w-full bg-slate-50 pl-12 pr-4 py-4 rounded-xl border-2 border-slate-100 focus:border-indigo-500 focus:bg-white outline-none transition-all font-medium text-slate-800 disabled:opacity-50"
-                        />
+                        <select
+                          value={scanType}
+                          onChange={(e) => setScanType(e.target.value)}
+                          className="w-full bg-white/50 backdrop-blur-sm px-5 py-4 rounded-2xl border border-slate-200 focus:border-indigo-500 focus:bg-white outline-none transition-all font-medium text-slate-800 cursor-pointer appearance-none"
+                        >
+                          <option value="web">Web Reconnaissance</option>
+                          <option value="vuln">Vulnerability Scan</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                          ▼
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Configuration Toggles */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl border border-slate-100 hover:border-indigo-200 transition-colors cursor-pointer flex items-center gap-3">
-                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-                      <Zap size={18} />
                     </div>
-                    <span className="text-sm font-semibold text-slate-600">
-                      Deep Analysis
-                    </span>
-                  </div>
-                  <div className="p-4 rounded-xl border border-slate-100 hover:border-indigo-200 transition-colors cursor-pointer flex items-center gap-3">
-                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-                      <Lock size={18} />
-                    </div>
-                    <span className="text-sm font-semibold text-slate-600">
-                      Private Report
-                    </span>
-                  </div>
-                </div>
 
-                {/* Action Button */}
-                <button
-                  onClick={handleStartScan}
-                  disabled={!inputValue || scanStatus === "scanning"}
-                  className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all shadow-lg ${
-                    scanStatus === "scanning"
-                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                      : "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-200 hover:-translate-y-1"
-                  }`}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 ml-1">
+                        <Eye size={14} /> Accessibility
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={accessibility}
+                          onChange={(e) => setAccessibility(e.target.value)}
+                          className="w-full bg-white/50 backdrop-blur-sm px-5 py-4 rounded-2xl border border-slate-200 focus:border-indigo-500 focus:bg-white outline-none transition-all font-medium text-slate-800 cursor-pointer appearance-none"
+                        >
+                          <option value="private">Private (Team Only)</option>
+                          <option value="public">Public (Shared)</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                          ▼
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="pt-6">
+                    <button
+                      type="submit"
+                      disabled={!target || !title}
+                      className="w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+                    >
+                      <Play size={20} fill="currentColor" /> Initialize Scan
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {/* STATE 2: SCANNING (LOADER) */}
+            {scanStatus === "scanning" && (
+              <motion.div
+                key="loader"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="p-16 flex flex-col items-center justify-center min-h-100"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-indigo-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
+                  <Loader2 className="w-16 h-16 text-indigo-600 animate-spin relative z-10" />
+                </div>
+                <h3 className="mt-8 text-xl font-bold text-slate-800">
+                  Analyzing Target...
+                </h3>
+                <p className="text-slate-500 font-medium mt-2">
+                  Connecting to {target}
+                </p>
+                <div className="mt-6 flex gap-1.5">
+                  <span
+                    className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  ></span>
+                  <span
+                    className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  ></span>
+                  <span
+                    className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  ></span>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STATE 3: SUCCESS POPUP */}
+            {scanStatus === "success" && (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className="p-12 flex flex-col items-center text-center min-h-100 justify-center"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1, type: "spring" }}
+                  className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6 shadow-inner"
                 >
-                  {scanStatus === "scanning" ? (
-                    <>
-                      {" "}
-                      <Loader2 className="animate-spin" /> Scanning
-                      Target...{" "}
-                    </>
-                  ) : (
-                    <>
-                      {" "}
-                      <Play size={20} fill="currentColor" /> Run{" "}
-                      {activeTool.title}{" "}
-                    </>
-                  )}
-                </button>
-              </div>
+                  <CheckCircle className="w-10 h-10" />
+                </motion.div>
 
-              {/* --- RIGHT: LIVE CONSOLE --- */}
-              <div className="bg-slate-900 p-6 lg:border-l border-slate-100 text-slate-300 font-mono text-xs md:text-sm flex flex-col h-100 lg:h-auto overflow-hidden relative">
-                <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-700">
-                  <span className="flex items-center gap-2 font-bold text-slate-100">
-                    <Terminal size={14} /> SYSTEM_TERMINAL
+                <h3 className="text-2xl font-extrabold text-slate-900 mb-2">
+                  Scan Initiated Successfully!
+                </h3>
+                <p className="text-slate-500 font-medium mb-8 max-w-md">
+                  Your scan for{" "}
+                  <span className="text-slate-800 font-bold">{target}</span> has
+                  been queued. The results will be available in the dashboard
+                  shortly.
+                </p>
+
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 w-full max-w-sm mb-8 flex justify-between items-center text-sm font-medium">
+                  <span className="text-slate-500 uppercase tracking-wider text-xs">
+                    Type
                   </span>
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
-                  </div>
+                  <span className="text-indigo-600">
+                    {scanType === "web" ? "Web Recon" : "Vuln Scan"}
+                  </span>
+                  <span className="text-slate-300">|</span>
+                  <span className="text-slate-500 uppercase tracking-wider text-xs">
+                    Access
+                  </span>
+                  <span className="text-slate-800 capitalize">
+                    {accessibility}
+                  </span>
                 </div>
 
-                {/* Log Output */}
-                <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-slate-700">
-                  {logs.length === 0 && scanStatus === "idle" && (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-600 opacity-50">
-                      <Terminal size={40} className="mb-2" />
-                      <p>Ready for input...</p>
-                    </div>
-                  )}
-
-                  {logs.map((log, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="text-green-400 break-all"
-                    >
-                      <span className="text-slate-500 mr-2">
-                        [
-                        {new Date().toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                        })}
-                        ]
-                      </span>
-                      {log}
-                    </motion.div>
-                  ))}
-
-                  {scanStatus === "complete" && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="mt-6 p-3 bg-green-500/10 border border-green-500/30 rounded text-green-400 font-bold flex items-center gap-2"
-                    >
-                      <CheckCircle2 size={16} /> Scan Completed. Report
-                      Available.
-                    </motion.div>
-                  )}
-                </div>
-
-                {/* Cursor */}
-                {scanStatus === "scanning" && (
-                  <div className="mt-2 w-2 h-4 bg-green-500 animate-pulse"></div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+                <button
+                  onClick={resetForm}
+                  className="py-3 px-8 rounded-xl font-bold text-slate-700 bg-white border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.98] transition-all flex items-center gap-2 shadow-sm"
+                >
+                  <Plus size={18} /> New Scan
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );
