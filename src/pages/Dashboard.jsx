@@ -5,6 +5,7 @@ import Scanners from "./Scanners";
 import NetworkMap from "./NetworkMap";
 import Analytics from "./Analytics";
 import DashHistory from "../components/DashHistory";
+import SecurityReportDashboard from "../pages/VulnReportPage";
 // import ScanRes from "./ScanRes";
 import {
   User,
@@ -261,6 +262,7 @@ function Dashboard() {
             {active === "scanners" && <Scanners />}
             {active === "network" && <NetworkMap />}
             {active === "analytics" && <Analytics />}
+            {/* <SecurityReportDashboard /> */}
           </main>
         </div>
       </div>
