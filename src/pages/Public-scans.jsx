@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // 👈 YAHAN ADD KIYA
 import ReportOverview from "../components/ReportOverview";
 
 function PublicScans() {
@@ -53,6 +54,8 @@ function PublicScans() {
 export default PublicScans;
 
 const WebHistory = () => {
+  const navigate = useNavigate(); // 👈 HOOK YAHAN SETUP KIYA
+
   const webReports = [
     {
       id: 1,
@@ -89,7 +92,7 @@ const WebHistory = () => {
             { label: "Total Requests", value: report.requests },
           ]}
           tags={report.ports.map((p) => `Port ${p}`)}
-          onExpand={() => console.log("Expand Web Report:", report.url)}
+          onExpand={() => navigate(`/scan-details/web/${report.id}`)} // 👈 NAVIGATE YAHAN LAGAYA
         />
       ))}
     </div>
@@ -97,6 +100,8 @@ const WebHistory = () => {
 };
 
 const VulnerabilityHistory = () => {
+  const navigate = useNavigate(); // 👈 HOOK YAHAN SETUP KIYA
+
   const vulnReports = [
     {
       id: 1,
@@ -130,9 +135,7 @@ const VulnerabilityHistory = () => {
             { label: "Issues Found", value: report.issues.length },
           ]}
           tags={report.issues}
-          onExpand={() =>
-            console.log("Expand Vulnerability Report:", report.target)
-          }
+          onExpand={() => navigate(`/scan-details/vuln/${report.id}`)} // 👈 NAVIGATE YAHAN LAGAYA
         />
       ))}
     </div>

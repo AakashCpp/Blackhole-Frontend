@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { ArrowUpDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import ReportOverview from "./ReportOverview";
 
-/* =========================
-   MAIN COMPONENT
-========================= */
 export default function DashHistory() {
   const [activeTab, setActiveTab] = useState("web");
 
@@ -16,30 +14,25 @@ export default function DashHistory() {
         <div className="flex rounded-lg bg-slate-100 p-1">
           <button
             onClick={() => setActiveTab("web")}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all
-              ${
-                activeTab === "web"
-                  ? "bg-white text-teal-600 shadow"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              activeTab === "web"
+                ? "bg-white text-teal-600 shadow"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
           >
             Web Scan History
           </button>
-
           <button
             onClick={() => setActiveTab("vulnerability")}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all
-              ${
-                activeTab === "vulnerability"
-                  ? "bg-white text-teal-600 shadow"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              activeTab === "vulnerability"
+                ? "bg-white text-teal-600 shadow"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
           >
             Vulnerability Scan History
           </button>
         </div>
-
-        {/* Sort Button */}
         <button className="p-2 rounded-lg hover:bg-slate-100 transition">
           <ArrowUpDown size={18} className="text-slate-600" />
         </button>
@@ -54,10 +47,13 @@ export default function DashHistory() {
   );
 }
 
-/* =========================
-   WEB HISTORY
-========================= */
 const WebHistory = () => {
+  const navigate = useNavigate();
+  const handleExpand = (report) => {
+    // 👈 URL contains 'web' type
+    navigate(`/scan-details/web/${report.id}`);
+  };
+
   const webReports = [
     {
       id: 1,
@@ -94,17 +90,20 @@ const WebHistory = () => {
             { label: "Total Requests", value: report.requests },
           ]}
           tags={report.ports.map((p) => `Port ${p}`)}
-          onExpand={() => console.log("Expand Web Report:", report.url)}
+          onExpand={() => handleExpand(report)}
         />
       ))}
     </div>
   );
 };
 
-/* =========================
-   VULNERABILITY HISTORY
-========================= */
 const VulnerabilityHistory = () => {
+  const navigate = useNavigate();
+  const handleExpand = (report) => {
+    // 👈 URL contains 'vuln' type
+    navigate(`/scan-details/vuln/${report.id}`);
+  };
+
   const vulnReports = [
     {
       id: 1,
@@ -138,9 +137,7 @@ const VulnerabilityHistory = () => {
             { label: "Issues Found", value: report.issues.length },
           ]}
           tags={report.issues}
-          onExpand={() =>
-            console.log("Expand Vulnerability Report:", report.target)
-          }
+          onExpand={() => handleExpand(report)}
         />
       ))}
     </div>

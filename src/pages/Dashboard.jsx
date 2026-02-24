@@ -5,8 +5,7 @@ import Scanners from "./Scanners";
 import NetworkMap from "./NetworkMap";
 import Analytics from "./Analytics";
 import DashHistory from "../components/DashHistory";
-import SecurityReportDashboard from "../pages/VulnReportPage";
-// import ScanRes from "./ScanRes";
+
 import {
   User,
   ShieldCheck,
@@ -36,6 +35,10 @@ const colorMap = {
     text: "text-rose-600",
     bg: "bg-rose-500/10",
   },
+  indigo: {
+    text: "text-indigo-600",
+    bg: "bg-indigo-500/10",
+  },
 };
 
 /* ===== PREMIUM MOTION ===== */
@@ -63,13 +66,14 @@ const slideFade = {
 function Dashboard() {
   const admin = "SKY";
   const [collapsed, setCollapsed] = useState(false);
-  const [active, setActive] = useState("scanners");
+  const [active, setActive] = useState("profile");
 
   const navItems = [
     { id: "profile", label: "Profile", icon: User, color: "green" },
     { id: "scanners", label: "Scanners", icon: ShieldCheck, color: "amber" },
     { id: "network", label: "Network Map", icon: Network, color: "cyan" },
     { id: "analytics", label: "Analytics", icon: BarChart3, color: "red" },
+    { id: "scans", label: "Scans History", icon: BarChart3, color: "indigo" },
   ];
 
   return (
@@ -262,7 +266,7 @@ function Dashboard() {
             {active === "scanners" && <Scanners />}
             {active === "network" && <NetworkMap />}
             {active === "analytics" && <Analytics />}
-            {/* <SecurityReportDashboard /> */}
+            {active === "scans" && <DashHistory />}
           </main>
         </div>
       </div>

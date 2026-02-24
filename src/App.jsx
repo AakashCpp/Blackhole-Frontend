@@ -12,6 +12,8 @@ import ResetPassword from "./components/ResetPassword";
 import PublicLayout from "./layouts/PublicLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
 import PhishingScanner from "./pages/PhishingPage";
+import SecurityReportDashboard from "./pages/VulnReportPage";
+import ScanDetailsPage from "./pages/ScanDetailsPage";
 
 function App() {
   return (
@@ -31,6 +33,7 @@ function App() {
 
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/scan-details/:type/:id" element={<ScanDetailsPage />} />
         </Route>
       </Routes>
     </>

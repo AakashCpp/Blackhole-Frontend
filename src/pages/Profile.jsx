@@ -25,6 +25,7 @@ import {
   Briefcase,
   Globe,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // --- MOCK DATA ---
 const INITIAL_USER_DATA = {
@@ -75,6 +76,7 @@ const SKILL_RADAR_DATA = [
 const SCAN_HISTORY = [
   {
     id: 1,
+    type: "web",
     target: "production-api.service.com",
     method: "SQL Injection Scan",
     time: "2h ago",
@@ -83,6 +85,7 @@ const SCAN_HISTORY = [
   },
   {
     id: 2,
+    type: "web",
     target: "legacy-auth.internal.net",
     method: "XSS Vulnerability Check",
     time: "5h ago",
@@ -91,6 +94,7 @@ const SCAN_HISTORY = [
   },
   {
     id: 3,
+    type: "vuln",
     target: "payment-gateway.io",
     method: "Full Penetration Test",
     time: "1d ago",
@@ -99,6 +103,7 @@ const SCAN_HISTORY = [
   },
   {
     id: 4,
+    type: "vuln",
     target: "user-dashboard.dev",
     method: "Network Port Scan",
     time: "2d ago",
@@ -611,6 +616,7 @@ const StatCard = ({ label, value, icon: Icon, color }) => (
 
 // --- MAIN PAGE ---
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(INITIAL_USER_DATA);
   const [mood, setMood] = useState(MOODS[0]);
   const [isEditing, setIsEditing] = useState(false);
@@ -872,7 +878,12 @@ export default function ProfilePage() {
                     <span className="hidden md:flex items-center gap-1.5">
                       <Calendar size={16} /> {scan.time}
                     </span>
-                    <button className="opacity-0 group-hover:opacity-100 text-indigo-600 font-bold text-xs bg-white border border-white shadow-sm px-4 py-2 rounded-xl transition-all hover:shadow-md">
+                    <button
+                      onClick={() =>
+                        navigate(`/scan-details/${scan.type}/${scan.id}`)
+                      }
+                      className="opacity-0 group-hover:opacity-100 text-indigo-600 font-bold text-xs bg-white border border-white shadow-sm px-4 py-2 rounded-xl transition-all hover:shadow-md"
+                    >
                       View Report
                     </button>
                   </div>
