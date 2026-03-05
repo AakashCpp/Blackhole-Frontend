@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Plus,
 } from "lucide-react";
+import api from "../utils/axiosInstance";
 
 export default function ScannersPage() {
   // --- FORM STATES MATCHING BACKEND req.body ---
@@ -28,7 +29,6 @@ export default function ScannersPage() {
 
     setScanStatus("scanning");
 
-    // 1. PREPARE PAYLOAD FOR BACKEND
     const payload = {
       title,
       target,
@@ -38,30 +38,16 @@ export default function ScannersPage() {
 
     console.log("🚀 Payload ready to send:", payload);
 
-    // =========================================================
-    // TODO: REDUX / API CALL HERE
-    // =========================================================
-    /*
     try {
-      const res = await fetch('/api/scan/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if(data.success) {
-         setScanStatus("success");
+      const res = await api.post("/jobs/run", payload);
+
+      if (res.data.success) {
+        setScanStatus("success");
       }
     } catch (error) {
-       console.error(error);
-       setScanStatus("idle"); // reset on error
+      console.error("Scan Error:", error.response?.data || error.message);
+      setScanStatus("idle");
     }
-    */
-
-    // 2. SIMULATE API DELAY
-    setTimeout(() => {
-      setScanStatus("success");
-    }, 2500); // 2.5 seconds loading simulation
   };
 
   const resetForm = () => {

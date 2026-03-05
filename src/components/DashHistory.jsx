@@ -1,95 +1,116 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowUpDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ReportOverview from "./ReportOverview";
+import api from "../utils/axiosInstance";
 
 export default function DashHistory() {
   const [activeTab, setActiveTab] = useState("web");
+
+  const [webReports, setWebReports] = useState([]);
+  const [vulnReports, setVulnReports] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      const res = await api.get("/jobs/my-jobs");
+
+      console.log(res?.data?.data);
+
+      const jobs = res?.data?.data || [];
+
+      const web = jobs.filter((j) => j.type === "web");
+      const vuln = jobs.filter((j) => j.type === "vuln");
+
+      setWebReports(web);
+      setVulnReports(vuln);
+    } catch (error) {
+      console.error("Error fetching scans:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="w-full">
       {/* Header */}
       <div className="flex items-center justify-between bg-white rounded-xl shadow-sm px-4 py-3">
-        {/* Toggle Tabs */}
         <div className="flex rounded-lg bg-slate-100 p-1">
           <button
             onClick={() => setActiveTab("web")}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
               activeTab === "web"
                 ? "bg-white text-teal-600 shadow"
-                : "text-slate-500 hover:text-slate-800"
+                : "text-slate-500"
             }`}
           >
             Web Scan History
           </button>
+
           <button
             onClick={() => setActiveTab("vulnerability")}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
               activeTab === "vulnerability"
                 ? "bg-white text-teal-600 shadow"
-                : "text-slate-500 hover:text-slate-800"
+                : "text-slate-500"
             }`}
           >
             Vulnerability Scan History
           </button>
         </div>
+
         <button className="p-2 rounded-lg hover:bg-slate-100 transition">
-          <ArrowUpDown size={18} className="text-slate-600" />
+          <ArrowUpDown size={18} />
         </button>
       </div>
 
       {/* Content */}
       <div className="mt-6">
-        {activeTab === "web" && <WebHistory />}
-        {activeTab === "vulnerability" && <VulnerabilityHistory />}
+        {loading && (
+          <p className="text-center text-slate-500">Loading scan history...</p>
+        )}
+
+        {!loading && activeTab === "web" && <WebHistory reports={webReports} />}
+
+        {!loading && activeTab === "vulnerability" && (
+          <VulnerabilityHistory reports={vulnReports} />
+        )}
       </div>
     </div>
   );
 }
 
-const WebHistory = () => {
+const WebHistory = ({ reports }) => {
   const navigate = useNavigate();
-  const handleExpand = (report) => {
-    // 👈 URL contains 'web' type
-    navigate(`/scan-details/web/${report.id}`);
-  };
 
-  const webReports = [
-    {
-      id: 1,
-      url: "https://example.com/admin/login",
-      risk: "Low",
-      requests: 342,
-      ports: ["22", "80", "443"],
-    },
-    {
-      id: 2,
-      url: "https://testsite.in/api",
-      risk: "High",
-      requests: 1245,
-      ports: ["80", "443", "8080", "3306"],
-    },
-    {
-      id: 3,
-      url: "https://secure.app/dashboard",
-      risk: "Medium",
-      requests: 612,
-      ports: ["443"],
-    },
-  ];
+  const handleExpand = (report) => {
+    navigate(`/scan-details/web/${report._id}`);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {webReports.map((report) => (
+      {reports?.map((report) => (
         <ReportOverview
-          key={report.id}
-          title={report.url}
+          key={report._id}
+          title={report.target}
           subtitle="Web Scan"
           stats={[
-            { label: "Risk Level", value: report.risk },
-            { label: "Total Requests", value: report.requests },
+            { label: "Risk Score", value: report.scanResults?.[0]?.risk_score },
+            {
+              label: "Vulnerabilities",
+              value: report.scanResults?.[0]?.total_vulnerabilities,
+            },
           ]}
-          tags={report.ports.map((p) => `Port ${p}`)}
+          tags={
+            report.scanResults?.[0]?.results?.ports?.open_ports?.map(
+              (p) => `Port ${p.port}`,
+            ) || []
+          }
           onExpand={() => handleExpand(report)}
         />
       ))}
@@ -97,46 +118,31 @@ const WebHistory = () => {
   );
 };
 
-const VulnerabilityHistory = () => {
+const VulnerabilityHistory = ({ reports }) => {
   const navigate = useNavigate();
-  const handleExpand = (report) => {
-    // 👈 URL contains 'vuln' type
-    navigate(`/scan-details/vuln/${report.id}`);
-  };
 
-  const vulnReports = [
-    {
-      id: 1,
-      target: "Auth Server",
-      severity: "Critical",
-      issues: ["Broken Auth", "JWT Misconfig", "Rate Limit Missing"],
-    },
-    {
-      id: 2,
-      target: "Payment API",
-      severity: "High",
-      issues: ["SQL Injection", "Sensitive Data Exposure"],
-    },
-    {
-      id: 3,
-      target: "Dashboard UI",
-      severity: "Medium",
-      issues: ["XSS", "Insecure Headers"],
-    },
-  ];
+  const handleExpand = (report) => {
+    navigate(`/scan-details/vuln/${report._id}`);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {vulnReports.map((report) => (
+      {reports?.map((report) => (
         <ReportOverview
-          key={report.id}
+          key={report._id}
           title={report.target}
           subtitle="Vulnerability Scan"
           stats={[
-            { label: "Severity", value: report.severity },
-            { label: "Issues Found", value: report.issues.length },
+            {
+              label: "Severity Score",
+              value: report.scanResults?.[0]?.risk_score || "N/A",
+            },
+            {
+              label: "Issues Found",
+              value: report.scanResults?.[0]?.total_vulnerabilities || 0,
+            },
           ]}
-          tags={report.issues}
+          tags={["Security Scan"]}
           onExpand={() => handleExpand(report)}
         />
       ))}

@@ -325,6 +325,8 @@ const VulnerabilityCard = ({
 // --- 5. MAIN DASHBOARD ---
 
 const SecurityReportDashboard = ({ SCAN_DATA }) => {
+  console.log(SCAN_DATA?.[0]);
+
   const [filter, setFilter] = useState("All");
   const [resolvedIds, setResolvedIds] = useState([]);
   const [toastMessage, setToastMessage] = useState(null);

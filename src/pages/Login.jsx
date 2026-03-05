@@ -3,6 +3,7 @@ import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/axiosInstance";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -19,15 +20,42 @@ export default function Login() {
     await loadSlim(engine);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log("Sending:", { email, password });
+    try {
+      const response = await api.post("/auth/login", {
+        email: email.trim(),
+        password: password.trim(),
+      });
 
-    // Simulate API call
-    setTimeout(() => {
+      const data = response.data;
+
+      // handle both response structures
+      const token = data.data?.token || data.token;
+      const refreshToken = data.data?.refreshToken || data.refreshToken;
+      const user = data.data?.user || data.user;
+
+      // store tokens
+      localStorage.setItem("token", token);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      console.log("Login Success:", data);
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login Error:", error.response?.data || error.message);
+
+      const message =
+        error.response?.data?.message ||
+        "Login failed. Please check email and password.";
+
+      alert(message);
+    } finally {
       setIsLoading(false);
-      console.log("Logged in:", { email, password });
-    }, 2000);
+    }
   };
 
   return (
@@ -147,7 +175,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-              placeholder="you@example.com"
+              placeholder=""
             />
           </div>
 
