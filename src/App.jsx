@@ -11,8 +11,8 @@ import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import PublicLayout from "./layouts/PublicLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
+import AuthLayout from "./layouts/AuthLayout";
 import PhishingScanner from "./pages/PhishingPage";
-import SecurityReportDashboard from "./pages/VulnReportPage";
 import ScanDetailsPage from "./pages/ScanDetailsPage";
 
 function App() {
@@ -23,12 +23,15 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/scans" element={<PublicScans />} />
           <Route path="/about" element={<About />} />
+          <Route path="/phishingPage" element={<PhishingScanner />} />
+        </Route>
+
+        <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/forget-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/phishingPage" element={<PhishingScanner />} />
         </Route>
 
         <Route element={<DashboardLayout />}>

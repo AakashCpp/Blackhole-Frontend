@@ -14,15 +14,22 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    register : (state, action) = {},
-    verify : (state, action) = {},
-    login : (state, action) = {},
-    logout : (state, action) = {},
-    forgetPassword : (state, action) = {},
-    resetPassword : (state, action) = {},
+    register: (state, action) => {},
+    verify: (state, action) => {},
+    login: (state, action) => {},
+    logout: (state, action) => {},
+    forgetPassword: (state, action) => {},
+    resetPassword: (state, action) => {},
   },
 });
 
-export const { register, verify, login, logout, forgetPassword, resetPassword } = authSlice.actions;
+export const {
+  register,
+  verify,
+  login,
+  logout,
+  forgetPassword,
+  resetPassword,
+} = authSlice.actions;
 
 export default authSlice.reducer;

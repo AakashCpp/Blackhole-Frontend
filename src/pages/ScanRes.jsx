@@ -144,7 +144,7 @@ const ScanRes = ({ data }) => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Server size={16} className="text-indigo-400" />
-                      <span className="font-mono bg-slate-50 px-2 py-0.5 rounded text-xs border border-slate-100">
+                      <span className="font-mono bg-slate-50 px-2 py-0.5 rounded text-xs border border-slate-100 text-slate-900">
                         {data.ip_address}
                       </span>
                     </div>

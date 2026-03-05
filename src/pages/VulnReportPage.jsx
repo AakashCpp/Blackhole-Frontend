@@ -294,7 +294,7 @@ const VulnerabilityCard = ({
                       className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium transition-colors"
                     >
                       {copied ? <Check size={12} /> : <Copy size={12} />}
-                      {copied ? "Copied!" : "Copy Code"}
+                      {copied ? "Copied!" : "Copy"}
                     </button>
                   </div>
                   <div className="bg-white p-3 rounded border border-gray-200 text-sm text-gray-700 font-mono shadow-sm">
