@@ -17,7 +17,15 @@ export default function ScanDetailsPage() {
     const fetchReports = async () => {
       try {
         const res = await api.get(`/jobs/${type}/${id}`);
-        const scanData = res?.data?.data?.scanResults?.[0] || null;
+
+        let scanData = null;
+
+        if (type === "vuln") {
+          scanData = res?.data?.data?.scanResults?.[0];
+        } else {
+          scanData = res?.data?.data?.scanResults?.[0];
+        }
+
         setData(scanData);
         console.log("Fetched scan data:", scanData);
       } catch (error) {

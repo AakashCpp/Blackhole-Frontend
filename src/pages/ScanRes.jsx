@@ -16,10 +16,12 @@ import {
   Info,
   Terminal,
 } from "lucide-react";
-import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const ScanRes = ({ data }) => {
+  console.log(data);
+
   const printRef = useRef();
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
@@ -35,29 +37,126 @@ const ScanRes = ({ data }) => {
     }
   };
 
-  const handleDownloadPdf = async () => {
-    const element = printRef.current;
-    if (!element) return;
+  const handleDownloadPdf = () => {
     setIsGeneratingPdf(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      const dataUrl = await toPng(element, {
-        quality: 0.95,
-        backgroundColor: "#F8FAFC",
-        cacheBust: true,
-      });
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const imgProps = pdf.getImageProperties(dataUrl);
-      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, imgHeight);
-      pdf.save(`Security_Report_${data.target.replace("https://", "")}.pdf`);
-    } catch (error) {
-      console.error("PDF Error:", error);
-      alert("Could not generate PDF.");
-    } finally {
-      setIsGeneratingPdf(false);
-    }
+
+    const pdf = new jsPDF();
+
+    let y = 20;
+
+    // TITLE
+    pdf.setFontSize(20);
+    pdf.text("Security Scan Report", 14, y);
+
+    y += 10;
+
+    pdf.setFontSize(11);
+    pdf.text(`Target: ${data.target}`, 14, y);
+    y += 6;
+    pdf.text(`IP Address: ${data.ip_address}`, 14, y);
+    y += 6;
+    pdf.text(`Scan Duration: ${data.duration?.toFixed(2)}s`, 14, y);
+
+    y += 10;
+
+    // RISK SUMMARY
+    pdf.setFontSize(14);
+    pdf.text("Risk Summary", 14, y);
+    y += 4;
+
+    autoTable(pdf, {
+      startY: y,
+      head: [["Grade", "Risk Score"]],
+      body: [[data.grade, data.risk_score]],
+    });
+
+    y = pdf.lastAutoTable.finalY + 10;
+
+    // TECHNOLOGY STACK
+    pdf.text("Technology Stack", 14, y);
+
+    autoTable(pdf, {
+      startY: y + 4,
+      head: [["Technology", "Category", "Source"]],
+      body:
+        data.results?.technologies?.technologies?.map((t) => [
+          t.name,
+          t.category,
+          t.source,
+        ]) || [],
+    });
+
+    y = pdf.lastAutoTable.finalY + 10;
+
+    // OPEN PORTS
+    pdf.text("Open Ports", 14, y);
+
+    autoTable(pdf, {
+      startY: y + 4,
+      head: [["Port", "Service", "Risk"]],
+      body:
+        data.results?.ports?.open_ports?.map((p) => [
+          p.port,
+          p.service,
+          p.risk,
+        ]) || [],
+    });
+
+    y = pdf.lastAutoTable.finalY + 10;
+
+    // SSL
+    pdf.text("SSL Configuration", 14, y);
+
+    autoTable(pdf, {
+      startY: y + 4,
+      head: [["Grade", "Protocol", "Days Remaining"]],
+      body: [
+        [
+          data.results?.ssl?.grade,
+          data.results?.ssl?.version,
+          data.results?.ssl?.days_until_expiry,
+        ],
+      ],
+    });
+
+    y = pdf.lastAutoTable.finalY + 10;
+
+    // DIRECTORIES
+    pdf.text("Directory Enumeration", 14, y);
+
+    autoTable(pdf, {
+      startY: y + 4,
+      head: [["Path", "Status"]],
+      body:
+        data.results?.directories?.found_directories?.map((d) => [
+          "/" + d.path,
+          d.status,
+        ]) || [],
+    });
+
+    y = pdf.lastAutoTable.finalY + 10;
+
+    // VULNERABILITIES
+    pdf.text("Vulnerabilities", 14, y);
+
+    autoTable(pdf, {
+      startY: y + 4,
+      head: [["Type", "Risk"]],
+      body:
+        data.results?.vulnerabilities?.vulnerabilities?.map((v) => [
+          v.type,
+          v.risk,
+        ]) || [],
+    });
+
+    const filename =
+      "Security_Report_" +
+      (data.target?.replace("https://", "").replace("http://", "") || "scan") +
+      ".pdf";
+
+    pdf.save(filename);
+
+    setIsGeneratingPdf(false);
   };
 
   // --- Animation Variants ---
@@ -133,7 +232,7 @@ const ScanRes = ({ data }) => {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-                    Security Scan Report
+                    Recon Scan Report
                   </h1>
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-3 text-sm text-slate-50">
                     <div className="flex items-center gap-2">
@@ -155,7 +254,7 @@ const ScanRes = ({ data }) => {
                 <Clock size={16} className="text-slate-400" />
                 <span className="text-slate-500">Scan duration:</span>
                 <span className="font-bold text-slate-700">
-                  {data.duration?.toFixed(1)}s
+                  {data.duration?.toFixed(2)}s
                 </span>
               </div>
             </div>
@@ -225,28 +324,29 @@ const ScanRes = ({ data }) => {
               <div className="flex items-center justify-between px-4 h-full">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-rose-500">
-                    {data.port_results?.summary?.risk_breakdown?.critical || 0}
+                    {data.results?.ports?.summary?.risk_breakdown?.critical ||
+                      0}
                   </div>
                   <div className="text-xs text-slate-400">Crit</div>
                 </div>
                 <div className="w-px h-10 bg-slate-100"></div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-amber-500">
-                    {data.port_results?.summary?.risk_breakdown?.high || 0}
+                    {data.results?.ports?.summary?.risk_breakdown?.high || 0}
                   </div>
                   <div className="text-xs text-slate-400">High</div>
                 </div>
                 <div className="w-px h-10 bg-slate-100"></div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-500">
-                    {data.port_results?.summary?.risk_breakdown?.medium || 0}
+                    {data.results?.ports?.summary?.risk_breakdown?.medium || 0}
                   </div>
                   <div className="text-xs text-slate-400">Med</div>
                 </div>
                 <div className="w-px h-10 bg-slate-100"></div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-500">
-                    {data.port_results?.summary?.risk_breakdown?.low || 0}
+                    {data.results?.ports?.summary?.risk_breakdown?.low || 0}
                   </div>
                   <div className="text-xs text-slate-400">Low</div>
                 </div>
@@ -263,22 +363,25 @@ const ScanRes = ({ data }) => {
                 icon={<LayoutGrid size={20} className="text-indigo-500" />}
               >
                 <div className="grid grid-cols-2 gap-4">
-                  {data.tech_results?.technologies?.map((tech, idx) => (
-                    <TechItem
-                      key={idx}
-                      name={tech.name}
-                      type={tech.category}
-                      icon={
-                        tech.name === "React" ? (
-                          <Terminal size={18} />
-                        ) : (
-                          <Globe size={18} />
-                        )
-                      }
-                      status="Detected"
-                      color={idx % 2 === 0 ? "blue" : "indigo"}
-                    />
-                  ))}
+                  {data.results?.technologies?.technologies?.map(
+                    (tech, idx) => (
+                      <TechItem
+                        key={idx}
+                        name={tech.name}
+                        type={tech.category}
+                        source={tech.source}
+                        icon={
+                          tech.name === "React" ? (
+                            <Terminal size={18} />
+                          ) : (
+                            <Globe size={18} />
+                          )
+                        }
+                        status="Detected"
+                        color={idx % 2 === 0 ? "blue" : "indigo"}
+                      />
+                    ),
+                  )}
                 </div>
               </Card>
 
@@ -291,7 +394,7 @@ const ScanRes = ({ data }) => {
                   <Table
                     headers={["Port", "Service", "Risk"]}
                     rows={
-                      data.port_results?.open_ports?.map((p) => [
+                      data.results.ports?.open_ports?.map((p) => [
                         <span className="font-mono text-slate-600">
                           {p.port}
                         </span>,
@@ -318,22 +421,22 @@ const ScanRes = ({ data }) => {
                       SSL Grade
                     </div>
                     <div className="text-2xl font-bold text-rose-600">
-                      {data.ssl_results?.grade}
+                      {data.results?.ssl.grade}
                     </div>
                   </div>
                   <Lock size={32} className="text-rose-200" />
                 </div>
-                <InfoRow label="Protocol" value={data.ssl_results?.version} />
+                <InfoRow label="Protocol" value={data.results?.ssl.version} />
                 <InfoRow
                   label="Issuer"
-                  value={data.ssl_results?.issuer
+                  value={data.results?.ssl.issuer
                     ?.split(" ")
                     .slice(0, 3)
                     .join(" ")}
                 />
                 <InfoRow
                   label="Expiry"
-                  value={`${data.ssl_results?.days_until_expiry} Days Remaining`}
+                  value={`${data.results?.ssl?.days_until_expiry} Days Remaining`}
                 />
               </Card>
             </div>
@@ -345,7 +448,7 @@ const ScanRes = ({ data }) => {
                 icon={<Shield size={20} className="text-teal-500" />}
               >
                 <div className="space-y-3">
-                  {data.header_results?.present_headers
+                  {data.results?.headers?.present_headers
                     ?.slice(0, 3)
                     .map((h, i) => (
                       <HeaderItem
@@ -356,7 +459,7 @@ const ScanRes = ({ data }) => {
                         desc="Header is active"
                       />
                     ))}
-                  {data.header_results?.missing_headers
+                  {data.results?.headers?.missing_headers
                     ?.slice(0, 2)
                     .map((h, i) => (
                       <HeaderItem
@@ -381,7 +484,7 @@ const ScanRes = ({ data }) => {
                     <span>STATUS</span>
                   </div>
                   <div className="divide-y divide-slate-50 max-h-64 overflow-y-auto">
-                    {data.dir_results?.found_directories
+                    {data.results?.directories?.found_directories
                       ?.slice(0, 10)
                       .map((dir, idx) => (
                         <DirectoryItem
@@ -403,20 +506,24 @@ const ScanRes = ({ data }) => {
                 <Table
                   headers={["Vulnerability", "Severity"]}
                   rows={[
-                    ...(data.vuln_results?.vulnerabilities?.map((v) => [
-                      <span className="font-medium text-slate-700">
-                        {v.type}
-                      </span>,
-                      <Badge color={v.risk === "high" ? "rose" : "amber"}>
-                        {v.risk}
-                      </Badge>,
-                    ]) || []),
-                    ...(data.vuln_results?.sensitive_files?.map((f) => [
-                      <span className="font-medium text-slate-700">
-                        {f.file} Leak
-                      </span>,
-                      <Badge color="amber">Medium</Badge>,
-                    ]) || []),
+                    ...(data.results?.vulnerabilities?.vulnerabilities?.map(
+                      (v) => [
+                        <span className="font-medium text-slate-700">
+                          {v.type}
+                        </span>,
+                        <Badge color={v.risk === "high" ? "rose" : "amber"}>
+                          {v.risk}
+                        </Badge>,
+                      ],
+                    ) || []),
+                    ...(data.results?.vulnerabilities?.sensitive_files?.map(
+                      (f) => [
+                        <span className="font-medium text-slate-700">
+                          {f.file} Leak
+                        </span>,
+                        <Badge color="amber">Medium</Badge>,
+                      ],
+                    ) || []),
                   ]}
                 />
               </Card>
@@ -472,7 +579,7 @@ const OverviewCard = ({ title, icon, subtext, children }) => (
   </motion.div>
 );
 
-const TechItem = ({ name, type, icon, status, color }) => {
+const TechItem = ({ name, type, icon, status, color, source }) => {
   const bgColors = {
     blue: "bg-blue-50 text-blue-600",
     indigo: "bg-indigo-50 text-indigo-600",
@@ -490,6 +597,7 @@ const TechItem = ({ name, type, icon, status, color }) => {
       <div>
         <div className="font-bold text-slate-800 text-sm">{name}</div>
         <div className="text-xs text-slate-500">{type}</div>
+        <div className="text-xs text-slate-500">{source}</div>
       </div>
     </div>
   );
