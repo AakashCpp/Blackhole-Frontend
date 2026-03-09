@@ -17,6 +17,9 @@ import {
   Shell,
 } from "lucide-react";
 
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../redux/slices/authSlice";
+
 /* ===== COLOR MAPS (TAILWIND SAFE) ===== */
 const colorMap = {
   green: {
@@ -75,6 +78,8 @@ function Dashboard() {
     { id: "analytics", label: "Analytics", icon: BarChart3, color: "red" },
     { id: "scans", label: "Scans History", icon: BarChart3, color: "indigo" },
   ];
+
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -251,6 +256,7 @@ function Dashboard() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
                       transition={smooth}
+                      onClick={() => dispatch(logoutUser())}
                     >
                       Logout
                     </motion.span>

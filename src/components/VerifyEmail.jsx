@@ -28,23 +28,27 @@ export default function VerifyEmail() {
     }
 
     // Yahan aapki actual Backend API call aayegi (e.g., axios.post('/api/verify-email', { token }))
-    // Abhi ke liye hum ise simulate kar rahe hain
     const verifyToken = async () => {
       try {
-        // Simulating network delay of 2.5 seconds
-        await new Promise((resolve) => setTimeout(resolve, 2500));
+        const response = await axios.post(
+          "http://localhost:5000/api/auth/verify-email",
+          { token },
+        );
 
-        // Simulating Success Response
-        setVerificationStatus("success");
-        setMessage("Email verified successfully! Welcome aboard.");
+        if (response.data.success) {
+          setVerificationStatus("success");
+          setMessage("Email verified successfully! Welcome aboard.");
 
-        // 3 seconds baad automatically Login page par bhej do
-        setTimeout(() => {
-          navigate("/login");
-        }, 3000);
+          setTimeout(() => {
+            navigate("/login");
+          }, 3000);
+        }
       } catch (error) {
         setVerificationStatus("error");
-        setMessage("Verification link has expired or is invalid.");
+        setMessage(
+          error.response?.data?.message ||
+            "Verification link has expired or is invalid.",
+        );
       }
     };
 
