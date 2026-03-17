@@ -24,27 +24,13 @@ import {
   User,
   Briefcase,
   Globe,
+  Github,
+  Linkedin,
+  Instagram,
+  Code2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-// --- MOCK DATA ---
-const INITIAL_USER_DATA = {
-  name: "Alex Sterling",
-  username: "@alex_sec",
-  email: "alex@cybersentinel.com",
-  role: "Lead Penetration Tester",
-  company: "CyberSentinel X",
-  bio: "Security researcher specializing in web application security and automated vulnerability assessment. Building tools to make the web safer.",
-  location: "Indore, India",
-  website: "alex-portfolio.dev",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-  skills: ["React", "Node.js", "Python", "OWASP ZAP", "Network Security"],
-  stats: {
-    scans: 142,
-    issuesFixed: 89,
-    reputation: "Top 1%",
-  },
-};
+import api from "../utils/axiosInstance";
 
 const MOODS = [
   { icon: "💻", label: "Deep Work" },
@@ -54,81 +40,42 @@ const MOODS = [
   { icon: "🎯", label: "Focused" },
 ];
 
-const ACTIVITY_DATA = [
-  { day: "Mon", value: 40 },
-  { day: "Tue", value: 70 },
-  { day: "Wed", value: 50 },
-  { day: "Thu", value: 90 },
-  { day: "Fri", value: 60 },
-  { day: "Sat", value: 30 },
-  { day: "Sun", value: 45 },
-];
-
-const SKILL_RADAR_DATA = [
-  { subject: "Frontend", A: 80 },
-  { subject: "Backend", A: 90 },
-  { subject: "Security", A: 95 },
-  { subject: "DevOps", A: 65 },
-  { subject: "Design", A: 70 },
-  { subject: "Testing", A: 85 },
-];
-
-const SCAN_HISTORY = [
-  {
-    id: 1,
-    type: "web",
-    target: "production-api.service.com",
-    method: "SQL Injection Scan",
-    time: "2h ago",
-    status: "Clean",
-    risk: "Low",
-  },
-  {
-    id: 2,
-    type: "web",
-    target: "legacy-auth.internal.net",
-    method: "XSS Vulnerability Check",
-    time: "5h ago",
-    status: "Flagged",
-    risk: "High",
-  },
-  {
-    id: 3,
-    type: "vuln",
-    target: "payment-gateway.io",
-    method: "Full Penetration Test",
-    time: "1d ago",
-    status: "Completed",
-    risk: "Medium",
-  },
-  {
-    id: 4,
-    type: "vuln",
-    target: "user-dashboard.dev",
-    method: "Network Port Scan",
-    time: "2d ago",
-    status: "Failed",
-    risk: "N/A",
-  },
-];
-
 // --- COMPONENTS ---
 
 // 1. GLASSMORPHISM EDIT PROFILE MODAL
 const EditProfileModal = ({ data, onClose, onSave }) => {
-  const [formData, setFormData] = useState({ ...data });
+  const [formData, setFormData] = useState({
+    ...data,
+    urls: data.urls || {
+      website: "",
+      github: "",
+      linkedin: "",
+      leetcode: "",
+      instagram: "",
+    },
+  });
+
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const handleSkillChange = (e) =>
     setFormData({
       ...formData,
       skills: e.target.value.split(",").map((s) => s.trim()),
     });
+
   const handleImageChange = (e) => {
-    if (e.target.files[0])
-      setFormData({
-        ...formData,
-        avatar: URL.createObjectURL(e.target.files[0]),
-      });
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setFormData({ ...formData, profilePicture: URL.createObjectURL(file) });
+    }
+  };
+
+  const handleSocialChange = (platform, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      urls: { ...prev.urls, [platform]: value },
+    }));
   };
 
   return (
@@ -159,8 +106,12 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
           <div className="flex items-center gap-6 pb-6 border-b border-white/40">
             <div className="relative group cursor-pointer w-24 h-24">
               <img
-                src={formData.avatar}
+                src={
+                  formData.profilePicture ||
+                  "https://api.dicebear.com/7.x/avataaars/svg?seed=Cyber"
+                }
                 alt="Avatar"
+                crossOrigin="anonymous"
                 className="w-full h-full rounded-full border-4 border-white/80 shadow-lg object-cover bg-gray-100"
               />
               <label
@@ -190,9 +141,16 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
               </label>
             </div>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {[
-              { label: "Full Name", icon: User, key: "name", type: "text" },
+              {
+                label: "Full Name",
+                icon: User,
+                key: "name",
+                type: "text",
+                disabled: true,
+              },
               {
                 label: "Username",
                 icon: () => (
@@ -202,21 +160,36 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
                 ),
                 key: "username",
                 type: "text",
+                disabled: false,
               },
               {
                 label: "Role / Title",
                 icon: Briefcase,
                 key: "role",
                 type: "text",
+                disabled: false,
               },
-              { label: "Email", icon: Mail, key: "email", type: "email" },
+              {
+                label: "Email",
+                icon: Mail,
+                key: "email",
+                type: "email",
+                disabled: true,
+              },
               {
                 label: "Location",
                 icon: MapPin,
                 key: "location",
                 type: "text",
+                disabled: false,
               },
-              { label: "Website", icon: Globe, key: "website", type: "text" },
+              {
+                label: "Organization",
+                icon: Globe,
+                key: "company",
+                type: "text",
+                disabled: false,
+              },
             ].map((field) => (
               <div key={field.key} className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
@@ -237,40 +210,90 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
                   )}
                   <input
                     type={field.type}
-                    value={formData[field.key]}
+                    value={formData[field.key] || ""}
+                    disabled={field.disabled}
                     onChange={(e) =>
                       setFormData({ ...formData, [field.key]: e.target.value })
                     }
-                    className="w-full pl-10 p-3 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                    className={`w-full pl-10 p-3 rounded-xl border border-white/60 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all ${field.disabled ? "bg-white/20 text-gray-500 opacity-60 cursor-not-allowed" : "bg-white/40 focus:bg-white/80 focus:border-indigo-400 text-gray-900"}`}
                   />
                 </div>
               </div>
             ))}
-            <div className="space-y-1.5 md:col-span-2">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Company
-              </label>
-              <input
-                type="text"
-                value={formData.company}
-                onChange={(e) =>
-                  setFormData({ ...formData, company: e.target.value })
-                }
-                className="w-full p-3 pl-4 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
-              />
+          </div>
+
+          <div className="pt-4 border-t border-white/40">
+            <h3 className="text-sm font-extrabold text-gray-900 mb-4 uppercase tracking-wider">
+              Social Profiles & URLs
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {[
+                {
+                  label: "Website",
+                  icon: LinkIcon,
+                  key: "website",
+                  placeholder: "https://yourwebsite.com",
+                },
+                {
+                  label: "GitHub URL",
+                  icon: Github,
+                  key: "github",
+                  placeholder: "https://github.com/...",
+                },
+                {
+                  label: "LinkedIn URL",
+                  icon: Linkedin,
+                  key: "linkedin",
+                  placeholder: "https://linkedin.com/in/...",
+                },
+                {
+                  label: "LeetCode URL",
+                  icon: Code2,
+                  key: "leetcode",
+                  placeholder: "https://leetcode.com/u/...",
+                },
+                {
+                  label: "Instagram URL",
+                  icon: Instagram,
+                  key: "instagram",
+                  placeholder: "https://instagram.com/...",
+                },
+              ].map((social) => (
+                <div key={social.key} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                    {social.label}
+                  </label>
+                  <div className="relative">
+                    <social.icon
+                      size={16}
+                      className="absolute left-3 top-3.5 text-gray-400"
+                    />
+                    <input
+                      type="url"
+                      placeholder={social.placeholder}
+                      value={formData.urls?.[social.key] || ""}
+                      onChange={(e) =>
+                        handleSocialChange(social.key, e.target.value)
+                      }
+                      className="w-full pl-10 p-3 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all text-gray-900"
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="space-y-1.5">
+
+          <div className="space-y-1.5 pt-4 border-t border-white/40">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-              Bio
+              Description (Bio)
             </label>
             <textarea
               rows={3}
-              value={formData.bio}
+              value={formData.bio || formData.description || ""}
               onChange={(e) =>
                 setFormData({ ...formData, bio: e.target.value })
               }
-              className="w-full p-4 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none"
+              className="w-full p-4 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none text-gray-900"
             />
           </div>
           <div className="space-y-1.5">
@@ -279,9 +302,9 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
             </label>
             <input
               type="text"
-              value={formData.skills.join(", ")}
+              value={formData.skills?.join(", ") || ""}
               onChange={handleSkillChange}
-              className="w-full p-3 pl-4 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+              className="w-full p-3 pl-4 rounded-xl border border-white/60 bg-white/40 focus:bg-white/80 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all text-gray-900"
             />
           </div>
         </div>
@@ -293,7 +316,7 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
             Cancel
           </button>
           <button
-            onClick={() => onSave(formData)}
+            onClick={() => onSave(formData, selectedFile)}
             className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
           >
             <Save size={18} /> Save Changes
@@ -307,7 +330,7 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
 // 2. HACKER MODE TERMINAL
 const HackerTerminal = ({ data, onClose }) => {
   const [text, setText] = useState("");
-  const fullText = `> ESTABLISHING SECURE CONNECTION...\n> IDENTITY: ${data.username}\n> TARGET: ${data.name}\n> ROLE: ${data.role}\n> ORG: ${data.company}\n> LOC: ${data.location}\n>\n> DECRYPTING BIO...\n> "${data.bio}"\n>\n> ANALYSIS COMPLETE.\n> SKILLS: [${data.skills.join(", ")}]\n>\n> READY FOR COMMAND._`;
+  const fullText = `> ESTABLISHING SECURE CONNECTION...\n> IDENTITY: ${data.username}\n> TARGET: ${data.name}\n> ROLE: ${data.role}\n> ORG: ${data.company || data.org}\n> LOC: ${data.location}\n>\n> DECRYPTING BIO...\n> "${data.bio || data.description}"\n>\n> ANALYSIS COMPLETE.\n> SKILLS: [${data.skills?.join(", ") || ""}]\n>\n> READY FOR COMMAND._`;
 
   useEffect(() => {
     let i = 0;
@@ -352,21 +375,33 @@ const HackerTerminal = ({ data, onClose }) => {
   );
 };
 
-// 3. SPIDER/RADAR CHART
-const SkillRadar = () => {
+// 3. SPIDER/RADAR CHART (DYNAMIC)
+const SkillRadar = ({ skills }) => {
   const size = 200,
     center = size / 2,
     radius = 80;
+
+  // Transform string skills to radar data dynamically
+  const radarData =
+    skills && skills.length > 0
+      ? skills.map((skill) => ({ subject: skill.substring(0, 10), A: 85 })) // Defaulting to 85 score for display
+      : [
+          { subject: "No Skills", A: 0 },
+          { subject: "Added", A: 0 },
+          { subject: "Yet", A: 0 },
+        ];
+
   const getPoint = (value, index, total) => {
     const angle = (Math.PI * 2 * index) / total - Math.PI / 2;
     return `${center + radius * (value / 100) * Math.cos(angle)},${center + radius * (value / 100) * Math.sin(angle)}`;
   };
-  const polyPoints = SKILL_RADAR_DATA.map((d, i) =>
-    getPoint(d.A, i, SKILL_RADAR_DATA.length),
-  ).join(" ");
-  const bgPoints = SKILL_RADAR_DATA.map((d, i) =>
-    getPoint(100, i, SKILL_RADAR_DATA.length),
-  ).join(" ");
+
+  const polyPoints = radarData
+    .map((d, i) => getPoint(d.A, i, radarData.length))
+    .join(" ");
+  const bgPoints = radarData
+    .map((d, i) => getPoint(100, i, radarData.length))
+    .join(" ");
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full">
@@ -385,9 +420,9 @@ const SkillRadar = () => {
         {[25, 50, 75].map((tick) => (
           <polygon
             key={tick}
-            points={SKILL_RADAR_DATA.map((d, i) =>
-              getPoint(tick, i, SKILL_RADAR_DATA.length),
-            ).join(" ")}
+            points={radarData
+              .map((d, i) => getPoint(tick, i, radarData.length))
+              .join(" ")}
             fill="none"
             stroke="rgba(241, 245, 249, 0.5)"
             strokeWidth="1"
@@ -401,8 +436,8 @@ const SkillRadar = () => {
           stroke="#6366f1"
           strokeWidth="2"
         />
-        {SKILL_RADAR_DATA.map((d, i) => {
-          const [x, y] = getPoint(115, i, SKILL_RADAR_DATA.length).split(",");
+        {radarData.map((d, i) => {
+          const [x, y] = getPoint(115, i, radarData.length).split(",");
           return (
             <text
               key={i}
@@ -421,23 +456,36 @@ const SkillRadar = () => {
   );
 };
 
-// 4. MOUNTAIN GRAPH (AREA CHART) - FIXED OVERFLOW
-const MountainGraph = () => {
-  const maxVal = 100;
-  // Map data to coordinates (X: 0 to 100%, Y: 0 to 100% inverted)
-  const points = ACTIVITY_DATA.map((d, i) => {
-    const x = (i / (ACTIVITY_DATA.length - 1)) * 100;
-    const y = 100 - (d.value / maxVal) * 100;
+// 4. MOUNTAIN GRAPH (AREA CHART - DYNAMIC)
+const MountainGraph = ({ dailyActivity }) => {
+  // Use backend data or default empty structure
+  const safeActivity =
+    dailyActivity && dailyActivity.length >= 2
+      ? dailyActivity
+      : [
+          { date: "Mon", count: 0 },
+          { date: "Tue", count: 0 },
+          { date: "Wed", count: 0 },
+          { date: "Thu", count: 0 },
+          { date: "Fri", count: 0 },
+          { date: "Sat", count: 0 },
+          { date: "Sun", count: 0 },
+        ];
+
+  const maxVal = Math.max(...safeActivity.map((d) => d.count), 10); // Minimum scale of 10
+
+  const points = safeActivity.map((d, i) => {
+    const x = (i / (safeActivity.length - 1)) * 100;
+    const y = 100 - (d.count / maxVal) * 100;
     return `${x},${y}`;
   });
 
-  const pathString = `M 0,100 L 0,${100 - ACTIVITY_DATA[0].value} L ${points.join(" L ")} L 100,100 Z`;
-  const lineString = `M 0,${100 - ACTIVITY_DATA[0].value} L ${points.join(" L ")}`;
+  const pathString = `M 0,100 L 0,${100 - (safeActivity[0]?.count || 0)} L ${points.join(" L ")} L 100,100 Z`;
+  const lineString = `M 0,${100 - (safeActivity[0]?.count || 0)} L ${points.join(" L ")}`;
 
   return (
     <div className="w-full h-full flex flex-col pt-2">
       <div className="flex-1 relative w-full min-h-0 mt-2">
-        {/* Graph Paths (SVG) */}
         <svg
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
@@ -467,20 +515,13 @@ const MountainGraph = () => {
             transition={{ duration: 1.2, ease: "easeOut" }}
           />
         </svg>
-
-        {/* HTML OVERLAYS FOR PERFECT CIRCULAR DOTS */}
         {points.map((p, i) => {
           const [x, y] = p.split(",");
           return (
             <motion.div
               key={i}
               className="absolute w-2 h-2 bg-white border-[1.5px] border-indigo-500 rounded-full z-10 shadow-sm"
-              style={{
-                left: `${x}%`,
-                top: `${y}%`,
-                x: "-50%", // Centers the dot directly over the coordinate
-                y: "-50%", // Centers the dot directly over the coordinate
-              }}
+              style={{ left: `${x}%`, top: `${y}%`, x: "-50%", y: "-50%" }}
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5 + i * 0.1 }}
@@ -488,17 +529,20 @@ const MountainGraph = () => {
           );
         })}
       </div>
-
-      {/* X-Axis Labels */}
       <div className="flex justify-between items-end mt-2 px-1">
-        {ACTIVITY_DATA.map((d, i) => (
-          <span
-            key={i}
-            className="text-[10px] font-bold text-gray-400 uppercase"
-          >
-            {d.day}
-          </span>
-        ))}
+        {safeActivity.map((d, i) => {
+          // Display day name or last few chars of date
+          const label =
+            d.date.length > 3 ? d.date.substring(d.date.length - 5) : d.date;
+          return (
+            <span
+              key={i}
+              className="text-[10px] font-bold text-gray-400 uppercase"
+            >
+              {label}
+            </span>
+          );
+        })}
       </div>
     </div>
   );
@@ -522,8 +566,12 @@ const ShareCardModal = ({ data, onClose }) => (
         <div className="px-6 pb-8 text-center relative">
           <div className="w-24 h-24 mx-auto -mt-12 rounded-full border-4 border-white shadow-lg bg-white p-1">
             <img
-              src={data.avatar}
+              src={
+                data.profilePicture ||
+                "https://api.dicebear.com/7.x/avataaars/svg?seed=Cyber"
+              }
               alt="Profile"
+              crossOrigin="anonymous"
               className="w-full h-full rounded-full object-cover"
             />
           </div>
@@ -617,12 +665,117 @@ const StatCard = ({ label, value, icon: Icon, color }) => (
 // --- MAIN PAGE ---
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState(INITIAL_USER_DATA);
+
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [mood, setMood] = useState(MOODS[0]);
   const [isEditing, setIsEditing] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isHackerMode, setIsHackerMode] = useState(false);
   const [showRadar, setShowRadar] = useState(false);
+
+  // FETCH DATA FROM API USING AXIOS
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const response = await api.get("/users/me");
+        const fetchedData = response.data.data;
+        console.log(fetchedData);
+
+        // Populate optional fallback keys if not present in DB
+        if (!fetchedData.urls) fetchedData.urls = {};
+        if (!fetchedData.skills) fetchedData.skills = [];
+        if (!fetchedData.stats)
+          fetchedData.stats = {
+            scans: 0,
+            issuesFixed: 0,
+            reputation: "Newbie",
+          };
+
+        // Normalize names for UI
+        fetchedData.company = fetchedData.company || fetchedData.org || "";
+        fetchedData.bio = fetchedData.bio || fetchedData.description || "";
+
+        setUserData(fetchedData);
+      } catch (err) {
+        console.error("Using mock data due to API error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProfileData();
+  }, []);
+
+  // SAVE DATA USING FormData
+  const handleSaveProfile = async (updatedData, selectedFile) => {
+    setIsEditing(false); // Close Modal immediately
+    const formDataToSend = new FormData();
+
+    if (updatedData.username !== userData.username)
+      formDataToSend.append("username", updatedData.username);
+    if (updatedData.role !== userData.role)
+      formDataToSend.append("role", updatedData.role);
+    if (updatedData.company !== userData.company)
+      formDataToSend.append("company", updatedData.company);
+    if (updatedData.location !== userData.location)
+      formDataToSend.append("location", updatedData.location);
+    if (updatedData.bio !== userData.bio)
+      formDataToSend.append("bio", updatedData.bio);
+
+    if (
+      JSON.stringify(updatedData.skills) !== JSON.stringify(userData.skills)
+    ) {
+      formDataToSend.append("skills", updatedData.skills.join(","));
+    }
+
+    if (JSON.stringify(updatedData.urls) !== JSON.stringify(userData.urls)) {
+      formDataToSend.append("urls", JSON.stringify(updatedData.urls));
+    }
+
+    if (selectedFile) {
+      formDataToSend.append("profilePicture", selectedFile);
+    }
+
+    console.log(formDataToSend);
+
+    try {
+      setUserData(updatedData); // Optimistic UI
+
+      const response = await api.put("/users/update", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const serverData = response.data.data
+        ? response.data.data
+        : response.data;
+      if (!serverData.urls) serverData.urls = {};
+      if (!serverData.skills) serverData.skills = [];
+      if (!serverData.stats)
+        serverData.stats = { scans: 0, issuesFixed: 0, reputation: "Newbie" };
+
+      serverData.company = serverData.company || serverData.org || "";
+      serverData.bio = serverData.bio || serverData.description || "";
+
+      setUserData(serverData);
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      alert("Note: Update failed.");
+      setUserData(userData); // Revert optimistic update on failure
+    }
+  };
+
+  if (isLoading || !userData) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <p className="mt-4 text-indigo-600 font-medium">
+          Decrypting Profile Data...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans relative overflow-hidden p-4 md:p-8">
@@ -638,10 +791,7 @@ export default function ProfilePage() {
           <EditProfileModal
             data={userData}
             onClose={() => setIsEditing(false)}
-            onSave={(d) => {
-              setUserData(d);
-              setIsEditing(false);
-            }}
+            onSave={handleSaveProfile}
           />
         )}
         {isSharing && (
@@ -666,47 +816,53 @@ export default function ProfilePage() {
             <div className="absolute right-6 top-6 flex gap-3">
               <button
                 onClick={() => setIsHackerMode(true)}
-                className="bg-black/80 backdrop-blur text-green-400 px-3 py-2 rounded-xl text-sm font-bold font-mono flex items-center gap-2 hover:bg-black transition-colors border border-green-900 shadow-lg"
+                className="bg-black/80 backdrop-blur text-green-400 px-3 py-2 rounded-xl text-sm font-bold font-mono flex items-center gap-2 hover:bg-black transition-colors shadow-lg"
               >
                 <Code size={16} />
               </button>
               <button
                 onClick={() => setIsSharing(true)}
-                className="bg-white/80 backdrop-blur text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-white transition-colors border border-white/50 shadow-sm"
+                className="bg-white/80 backdrop-blur text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-white transition-colors shadow-sm"
               >
-                <Share2 size={16} /> Share
+                <Share2 size={16} />{" "}
+                <span className="hidden sm:inline">Share</span>
               </button>
               <button
                 onClick={() => setIsEditing(true)}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
+                className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg"
               >
-                <Edit3 size={16} /> Edit Profile
+                <Edit3 size={16} />{" "}
+                <span className="hidden sm:inline">Edit Profile</span>
               </button>
             </div>
           </div>
-          <div className="px-8 pb-8">
+          <div className="px-4 sm:px-8 pb-8">
             <div className="flex flex-col md:flex-row gap-6 items-start">
-              <div className="relative -mt-12">
+              <div className="relative -mt-12 mx-auto md:mx-0">
                 <div className="w-32 h-32 rounded-3xl bg-white border-4 border-white shadow-xl overflow-hidden flex items-center justify-center p-1">
                   <img
-                    src={userData.avatar}
+                    src={
+                      userData.profilePicture ||
+                      "https://api.dicebear.com/7.x/avataaars/svg?seed=Cyber"
+                    }
                     alt="Profile"
+                    crossOrigin="anonymous"
                     className="w-full h-full object-cover rounded-2xl bg-gray-50"
                   />
                 </div>
                 <MoodPicker currentMood={mood} setMood={setMood} />
               </div>
-              <div className="flex-1 pt-4">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="flex-1 pt-4 text-center md:text-left w-full">
+                <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-4">
                   <div>
                     <h1 className="text-3xl font-extrabold text-gray-900">
                       {userData.name}
-                      <p className="text-sm text-zinc-700">
+                      <p className="text-sm text-zinc-700 mt-1">
                         {userData.username}
                       </p>
                     </h1>
-                    <p className="text-gray-500 font-bold mt-1">
-                      {userData.role} at{" "}
+                    <p className="text-gray-500 font-bold mt-2">
+                      {userData.role} {userData.company && `at `}{" "}
                       <span className="text-gray-900">{userData.company}</span>
                     </p>
                   </div>
@@ -714,40 +870,109 @@ export default function ProfilePage() {
                     <Download size={16} /> Resume
                   </button>
                 </div>
-                <p className="mt-4 text-gray-600 max-w-2xl leading-relaxed font-medium">
+                <p className="mt-4 text-gray-600 max-w-2xl leading-relaxed font-medium mx-auto md:mx-0">
                   {userData.bio}
                 </p>
-                <div className="mt-6 flex flex-wrap gap-4 text-sm text-gray-500 font-semibold">
-                  <div className="flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 shadow-sm">
-                    <MapPin size={16} className="text-indigo-500" />{" "}
-                    {userData.location}
+
+                {/* --- LOCATION, CLICKABLE EMAIL, AND CLICKABLE WEBSITE --- */}
+                <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-500 font-semibold">
+                  {userData.location && (
+                    <div className="flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 shadow-sm">
+                      <MapPin size={16} className="text-indigo-500" />{" "}
+                      {userData.location}
+                    </div>
+                  )}
+                  {userData.email && (
+                    <a
+                      href={`mailto:${userData.email}`}
+                      className="flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 shadow-sm hover:bg-white hover:text-indigo-600 transition-all cursor-pointer"
+                    >
+                      <Mail size={16} className="text-indigo-500" />{" "}
+                      {userData.email}
+                    </a>
+                  )}
+                  {userData.urls?.website && (
+                    <a
+                      href={
+                        userData.urls.website.startsWith("http")
+                          ? userData.urls.website
+                          : `https://${userData.urls.website}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 shadow-sm hover:bg-white hover:text-indigo-600 transition-all cursor-pointer"
+                    >
+                      <LinkIcon size={16} className="text-indigo-500" />{" "}
+                      {userData.urls.website}
+                    </a>
+                  )}
+                </div>
+
+                {/* --- SOCIAL LINKS BADGES --- */}
+                {userData.urls && (
+                  <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+                    {userData.urls.github && (
+                      <a
+                        href={userData.urls.github}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2.5 bg-white/60 rounded-xl border border-white/80 shadow-sm hover:bg-white hover:-translate-y-1 hover:shadow-md transition-all text-gray-700 hover:text-black"
+                      >
+                        <Github size={18} />
+                      </a>
+                    )}
+                    {userData.urls.linkedin && (
+                      <a
+                        href={userData.urls.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2.5 bg-white/60 rounded-xl border border-white/80 shadow-sm hover:bg-white hover:-translate-y-1 hover:shadow-md transition-all text-gray-700 hover:text-blue-700"
+                      >
+                        <Linkedin size={18} />
+                      </a>
+                    )}
+                    {userData.urls.leetcode && (
+                      <a
+                        href={userData.urls.leetcode}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2.5 bg-white/60 rounded-xl border border-white/80 shadow-sm hover:bg-white hover:-translate-y-1 hover:shadow-md transition-all text-gray-700 hover:text-amber-600"
+                      >
+                        <Code2 size={18} />
+                      </a>
+                    )}
+                    {userData.urls.instagram && (
+                      <a
+                        href={userData.urls.instagram}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2.5 bg-white/60 rounded-xl border border-white/80 shadow-sm hover:bg-white hover:-translate-y-1 hover:shadow-md transition-all text-gray-700 hover:text-rose-600"
+                      >
+                        <Instagram size={18} />
+                      </a>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 shadow-sm">
-                    <Mail size={16} className="textindigo-500" />{" "}
-                    {userData.email}
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 shadow-sm">
-                    <LinkIcon size={16} className="text-indigo-500" />{" "}
-                    {userData.website}
-                  </div>
+                )}
+              </div>
+            </div>
+
+            {userData.skills && userData.skills.length > 0 && (
+              <div className="mt-8 pt-6 border-t border-white/40">
+                <p className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3 text-center md:text-left">
+                  Core Technologies
+                </p>
+                <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                  {userData.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-4 py-1.5 bg-indigo-50/50 backdrop-blur text-indigo-700 text-xs font-bold rounded-lg border border-indigo-100 shadow-sm"
+                    >
+                      {skill}
+                    </span>
+                  ))}
                 </div>
               </div>
-            </div>
-            <div className="mt-8 pt-6 border-t border-white/40">
-              <p className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">
-                Core Technologies
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {userData.skills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-4 py-1.5 bg-indigo-50/50 backdrop-blur text-indigo-700 text-xs font-bold rounded-lg border border-indigo-100 shadow-sm"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
+            )}
           </div>
         </motion.div>
 
@@ -756,19 +981,19 @@ export default function ProfilePage() {
           <div className="lg:col-span-1 space-y-4">
             <StatCard
               label="Total Scans"
-              value={userData.stats.scans}
+              value={userData.stats?.scans || 0}
               icon={Terminal}
               color="text-indigo-600"
             />
             <StatCard
               label="Issues Fixed"
-              value={userData.stats.issuesFixed}
+              value={userData.stats?.issuesFixed || 0}
               icon={AlertCircle}
               color="text-rose-600"
             />
             <StatCard
               label="Reputation"
-              value={userData.stats.reputation}
+              value={userData.stats?.reputation || "Newbie"}
               icon={Shield}
               color="text-emerald-600"
             />
@@ -801,7 +1026,6 @@ export default function ProfilePage() {
                 </button>
               </div>
             </div>
-            {/* Added min-h-0 here to ensure the graph respects this container's height bounds */}
             <div className="flex-1 w-full relative min-h-0">
               <AnimatePresence mode="wait">
                 {!showRadar ? (
@@ -812,7 +1036,7 @@ export default function ProfilePage() {
                     exit={{ opacity: 0 }}
                     className="w-full h-full"
                   >
-                    <MountainGraph />
+                    <MountainGraph dailyActivity={userData.dailyActivity} />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -822,7 +1046,7 @@ export default function ProfilePage() {
                     exit={{ opacity: 0 }}
                     className="w-full h-full flex items-center justify-center"
                   >
-                    <SkillRadar />
+                    <SkillRadar skills={userData.skills} />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -842,53 +1066,63 @@ export default function ProfilePage() {
           </div>
           <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] overflow-hidden">
             <div className="divide-y divide-white/40">
-              {SCAN_HISTORY.map((scan) => (
-                <motion.div
-                  key={scan.id}
-                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.4)" }}
-                  className="p-5 flex flex-col md:flex-row md:items-center gap-4 transition-colors cursor-pointer group"
-                >
-                  <div
-                    className={`p-3 rounded-xl shadow-sm border border-white/60 ${scan.status === "Clean" ? "bg-emerald-50 text-emerald-600" : scan.status === "Flagged" ? "bg-rose-50 text-rose-600" : "bg-gray-50 text-gray-500"}`}
+              {userData.jobs && userData.jobs.length > 0 ? (
+                userData.jobs.map((job, index) => (
+                  <motion.div
+                    key={job._id || index}
+                    whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.4)" }}
+                    className="p-5 flex flex-col md:flex-row md:items-center gap-4 transition-colors cursor-pointer group"
                   >
-                    {scan.status === "Clean" ? (
-                      <CheckCircle2 size={20} />
-                    ) : scan.status === "Flagged" ? (
-                      <AlertCircle size={20} />
-                    ) : (
-                      <Activity size={20} />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1.5">
-                      <h4 className="font-bold text-gray-900 text-lg">
-                        {scan.target}
-                      </h4>
-                      <span
-                        className={`text-[10px] font-extrabold px-2.5 py-1 rounded-md border ${scan.risk === "High" ? "bg-rose-50/50 text-rose-600 border-rose-200" : scan.risk === "Medium" ? "bg-amber-50/50 text-amber-600 border-amber-200" : "bg-emerald-50/50 text-emerald-600 border-emerald-200"}`}
-                      >
-                        {scan.risk.toUpperCase()}
-                      </span>
-                    </div>
-                    <p className="text-sm font-semibold text-gray-500 flex items-center gap-2">
-                      <Cpu size={14} /> {scan.method}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-6 text-sm font-bold text-gray-400 md:pl-10">
-                    <span className="hidden md:flex items-center gap-1.5">
-                      <Calendar size={16} /> {scan.time}
-                    </span>
-                    <button
-                      onClick={() =>
-                        navigate(`/scan-details/${scan.type}/${scan.id}`)
-                      }
-                      className="opacity-0 group-hover:opacity-100 text-indigo-600 font-bold text-xs bg-white border border-white shadow-sm px-4 py-2 rounded-xl transition-all hover:shadow-md"
+                    <div
+                      className={`p-3 rounded-xl shadow-sm border border-white/60 ${job.status === "Clean" ? "bg-emerald-50 text-emerald-600" : job.status === "Flagged" ? "bg-rose-50 text-rose-600" : "bg-gray-50 text-gray-500"}`}
                     >
-                      View Report
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
+                      {job.status === "Clean" ? (
+                        <CheckCircle2 size={20} />
+                      ) : job.status === "Flagged" ? (
+                        <AlertCircle size={20} />
+                      ) : (
+                        <Activity size={20} />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-1.5">
+                        <h4 className="font-bold text-gray-900 text-lg">
+                          {job.target || `Project Target #${index + 1}`}
+                        </h4>
+                        <span
+                          className={`text-[10px] font-extrabold px-2.5 py-1 rounded-md border ${job.risk === "High" ? "bg-rose-50/50 text-rose-600 border-rose-200" : job.risk === "Medium" ? "bg-amber-50/50 text-amber-600 border-amber-200" : "bg-emerald-50/50 text-emerald-600 border-emerald-200"}`}
+                        >
+                          {(job.risk || "Normal").toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-sm font-semibold text-gray-500 flex items-center gap-2">
+                        <Cpu size={14} />{" "}
+                        {job.method || "Automated Vulnerability Scan"}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between md:justify-end gap-6 text-sm font-bold text-gray-400 md:pl-10">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar size={16} />{" "}
+                        {job.time || new Date().toLocaleDateString()}
+                      </span>
+                      <button
+                        onClick={() =>
+                          navigate(
+                            `/scan-details/${job.type || "vuln"}/${job._id}`,
+                          )
+                        }
+                        className="opacity-100 md:opacity-0 group-hover:opacity-100 text-indigo-600 font-bold text-xs bg-white border border-white shadow-sm px-4 py-2 rounded-xl transition-all hover:shadow-md"
+                      >
+                        View Report
+                      </button>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="p-8 text-center text-gray-500 font-medium">
+                  No recent scans found. Start your first scan!
+                </div>
+              )}
             </div>
           </div>
         </div>
