@@ -30,7 +30,13 @@ import {
   Code2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import api from "../utils/axiosInstance";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchProfile,
+  fetchStats,
+  updateProfile,
+  resetStatus,
+} from "../redux/slices/userSlice";
 
 const MOODS = [
   { icon: "💻", label: "Deep Work" },
@@ -46,7 +52,7 @@ const MOODS = [
 const EditProfileModal = ({ data, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     ...data,
-    urls: data.urls || {
+    urls: data?.urls || {
       website: "",
       github: "",
       linkedin: "",
@@ -60,7 +66,10 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
   const handleSkillChange = (e) =>
     setFormData({
       ...formData,
-      skills: e.target.value.split(",").map((s) => s.trim()),
+      skills: e.target.value
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean), // Added filter to remove empty strings
     });
 
   const handleImageChange = (e) => {
@@ -330,7 +339,17 @@ const EditProfileModal = ({ data, onClose, onSave }) => {
 // 2. HACKER MODE TERMINAL
 const HackerTerminal = ({ data, onClose }) => {
   const [text, setText] = useState("");
-  const fullText = `> ESTABLISHING SECURE CONNECTION...\n> IDENTITY: ${data.username}\n> TARGET: ${data.name}\n> ROLE: ${data.role}\n> ORG: ${data.company || data.org}\n> LOC: ${data.location}\n>\n> DECRYPTING BIO...\n> "${data.bio || data.description}"\n>\n> ANALYSIS COMPLETE.\n> SKILLS: [${data.skills?.join(", ") || ""}]\n>\n> READY FOR COMMAND._`;
+  const fullText = `> ESTABLISHING SECURE CONNECTION...\n> IDENTITY: ${
+    data?.username || "UNKNOWN"
+  }\n> TARGET: ${data?.name || "UNKNOWN"}\n> ROLE: ${
+    data?.role || "UNASSIGNED"
+  }\n> ORG: ${data?.company || data?.org || "NONE"}\n> LOC: ${
+    data?.location || "UNKNOWN"
+  }\n>\n> DECRYPTING BIO...\n> "${
+    data?.bio || data?.description || ""
+  }"\n>\n> ANALYSIS COMPLETE.\n> SKILLS: [${
+    data?.skills?.join(", ") || ""
+  }]\n>\n> READY FOR COMMAND._`;
 
   useEffect(() => {
     let i = 0;
@@ -393,7 +412,9 @@ const SkillRadar = ({ skills }) => {
 
   const getPoint = (value, index, total) => {
     const angle = (Math.PI * 2 * index) / total - Math.PI / 2;
-    return `${center + radius * (value / 100) * Math.cos(angle)},${center + radius * (value / 100) * Math.sin(angle)}`;
+    return `${
+      center + radius * (value / 100) * Math.cos(angle)
+    },${center + radius * (value / 100) * Math.sin(angle)}`;
   };
 
   const polyPoints = radarData
@@ -480,8 +501,12 @@ const MountainGraph = ({ dailyActivity }) => {
     return `${x},${y}`;
   });
 
-  const pathString = `M 0,100 L 0,${100 - (safeActivity[0]?.count || 0)} L ${points.join(" L ")} L 100,100 Z`;
-  const lineString = `M 0,${100 - (safeActivity[0]?.count || 0)} L ${points.join(" L ")}`;
+  const pathString = `M 0,100 L 0,${
+    100 - (safeActivity[0]?.count || 0)
+  } L ${points.join(" L ")} L 100,100 Z`;
+  const lineString = `M 0,${
+    100 - (safeActivity[0]?.count || 0)
+  } L ${points.join(" L ")}`;
 
   return (
     <div className="w-full h-full flex flex-col pt-2">
@@ -567,7 +592,7 @@ const ShareCardModal = ({ data, onClose }) => (
           <div className="w-24 h-24 mx-auto -mt-12 rounded-full border-4 border-white shadow-lg bg-white p-1">
             <img
               src={
-                data.profilePicture ||
+                data?.profilePicture ||
                 "https://api.dicebear.com/7.x/avataaars/svg?seed=Cyber"
               }
               alt="Profile"
@@ -575,8 +600,8 @@ const ShareCardModal = ({ data, onClose }) => (
               className="w-full h-full rounded-full object-cover"
             />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mt-3">{data.name}</h2>
-          <p className="text-sm text-gray-500 font-medium">{data.role}</p>
+          <h2 className="text-xl font-bold text-gray-900 mt-3">{data?.name}</h2>
+          <p className="text-sm text-gray-500 font-medium">{data?.role}</p>
           <div className="my-6 p-4 bg-white/50 backdrop-blur rounded-2xl border border-white/80 flex flex-col items-center justify-center shadow-inner">
             <QrCode size={120} className="text-gray-800" />
             <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-widest">
@@ -665,9 +690,11 @@ const StatCard = ({ label, value, icon: Icon, color }) => (
 // --- MAIN PAGE ---
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [userData, setUserData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { profile, stats, loading, error, success } = useSelector(
+    (state) => state.user,
+  );
 
   const [mood, setMood] = useState(MOODS[0]);
   const [isEditing, setIsEditing] = useState(false);
@@ -675,61 +702,34 @@ export default function ProfilePage() {
   const [isHackerMode, setIsHackerMode] = useState(false);
   const [showRadar, setShowRadar] = useState(false);
 
-  // FETCH DATA FROM API USING AXIOS
+  // FETCH DATA FROM API
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const response = await api.get("/users/me");
-        const fetchedData = response.data.data;
-        console.log(fetchedData);
+    dispatch(fetchProfile());
+    dispatch(fetchStats());
+  }, [dispatch]);
 
-        // Populate optional fallback keys if not present in DB
-        if (!fetchedData.urls) fetchedData.urls = {};
-        if (!fetchedData.skills) fetchedData.skills = [];
-        if (!fetchedData.stats)
-          fetchedData.stats = {
-            scans: 0,
-            issuesFixed: 0,
-            reputation: "Newbie",
-          };
-
-        // Normalize names for UI
-        fetchedData.company = fetchedData.company || fetchedData.org || "";
-        fetchedData.bio = fetchedData.bio || fetchedData.description || "";
-
-        setUserData(fetchedData);
-      } catch (err) {
-        console.error("Using mock data due to API error:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchProfileData();
-  }, []);
+  useEffect(() => {
+    if (success) {
+      alert("Profile updated successfully!");
+      dispatch(resetStatus());
+    }
+  }, [success, dispatch]);
 
   // SAVE DATA USING FormData
-  const handleSaveProfile = async (updatedData, selectedFile) => {
-    setIsEditing(false); // Close Modal immediately
+  const handleSaveProfile = (updatedData, selectedFile) => {
     const formDataToSend = new FormData();
 
-    if (updatedData.username !== userData.username)
-      formDataToSend.append("username", updatedData.username);
-    if (updatedData.role !== userData.role)
-      formDataToSend.append("role", updatedData.role);
-    if (updatedData.company !== userData.company)
-      formDataToSend.append("company", updatedData.company);
-    if (updatedData.location !== userData.location)
-      formDataToSend.append("location", updatedData.location);
-    if (updatedData.bio !== userData.bio)
-      formDataToSend.append("bio", updatedData.bio);
+    formDataToSend.append("username", updatedData.username || "");
+    formDataToSend.append("role", updatedData.role || "");
+    formDataToSend.append("company", updatedData.company || "");
+    formDataToSend.append("location", updatedData.location || "");
+    formDataToSend.append("bio", updatedData.bio || "");
 
-    if (
-      JSON.stringify(updatedData.skills) !== JSON.stringify(userData.skills)
-    ) {
+    if (updatedData.skills && updatedData.skills.length > 0) {
       formDataToSend.append("skills", updatedData.skills.join(","));
     }
 
-    if (JSON.stringify(updatedData.urls) !== JSON.stringify(userData.urls)) {
+    if (updatedData.urls) {
       formDataToSend.append("urls", JSON.stringify(updatedData.urls));
     }
 
@@ -737,36 +737,15 @@ export default function ProfilePage() {
       formDataToSend.append("profilePicture", selectedFile);
     }
 
-    console.log(formDataToSend);
-
-    try {
-      setUserData(updatedData); // Optimistic UI
-
-      const response = await api.put("/users/update", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      const serverData = response.data.data
-        ? response.data.data
-        : response.data;
-      if (!serverData.urls) serverData.urls = {};
-      if (!serverData.skills) serverData.skills = [];
-      if (!serverData.stats)
-        serverData.stats = { scans: 0, issuesFixed: 0, reputation: "Newbie" };
-
-      serverData.company = serverData.company || serverData.org || "";
-      serverData.bio = serverData.bio || serverData.description || "";
-
-      setUserData(serverData);
-      alert("Profile updated successfully!");
-    } catch (err) {
-      console.error("Failed to update profile:", err);
-      alert("Note: Update failed.");
-      setUserData(userData); // Revert optimistic update on failure
-    }
+    dispatch(updateProfile(formDataToSend));
+    setIsEditing(false);
   };
 
-  if (isLoading || !userData) {
+  if (error) {
+    return <p className="text-red-500 text-center">{error}</p>;
+  }
+
+  if (loading || !profile) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
         <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -776,6 +755,14 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  // --- THE FIX: Declare userData object based on our Redux state
+  const userData = {
+    ...profile.data,
+    ...stats.data,
+  };
+
+  console.log(userData);
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans relative overflow-hidden p-4 md:p-8">
@@ -862,8 +849,8 @@ export default function ProfilePage() {
                       </p>
                     </h1>
                     <p className="text-gray-500 font-bold mt-2">
-                      {userData.role} {userData.company && `at `}{" "}
-                      <span className="text-gray-900">{userData.company}</span>
+                      {userData.role} {userData.org && `at `}{" "}
+                      <span className="text-gray-900">{userData.org}</span>
                     </p>
                   </div>
                   <button className="bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:bg-gray-800 transition-all active:scale-95">
@@ -981,7 +968,7 @@ export default function ProfilePage() {
           <div className="lg:col-span-1 space-y-4">
             <StatCard
               label="Total Scans"
-              value={userData.stats?.scans || 0}
+              value={userData?.totalJobs || 0}
               icon={Terminal}
               color="text-indigo-600"
             />
@@ -1014,13 +1001,21 @@ export default function ProfilePage() {
               <div className="flex bg-white/50 p-1 rounded-xl border border-white/80 shadow-sm">
                 <button
                   onClick={() => setShowRadar(false)}
-                  className={`p-2 rounded-lg transition-all ${!showRadar ? "bg-white shadow text-indigo-600" : "text-gray-400 hover:text-gray-600"}`}
+                  className={`p-2 rounded-lg transition-all ${
+                    !showRadar
+                      ? "bg-white shadow text-indigo-600"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
                 >
                   <BarChart3 size={16} />
                 </button>
                 <button
                   onClick={() => setShowRadar(true)}
-                  className={`p-2 rounded-lg transition-all ${showRadar ? "bg-white shadow text-indigo-600" : "text-gray-400 hover:text-gray-600"}`}
+                  className={`p-2 rounded-lg transition-all ${
+                    showRadar
+                      ? "bg-white shadow text-indigo-600"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
                 >
                   <Radar size={16} />
                 </button>
@@ -1036,7 +1031,9 @@ export default function ProfilePage() {
                     exit={{ opacity: 0 }}
                     className="w-full h-full"
                   >
-                    <MountainGraph dailyActivity={userData.dailyActivity} />
+                    <MountainGraph
+                      dailyActivity={userData?.performanceMatrix?.slice(-10)}
+                    />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -1074,7 +1071,13 @@ export default function ProfilePage() {
                     className="p-5 flex flex-col md:flex-row md:items-center gap-4 transition-colors cursor-pointer group"
                   >
                     <div
-                      className={`p-3 rounded-xl shadow-sm border border-white/60 ${job.status === "Clean" ? "bg-emerald-50 text-emerald-600" : job.status === "Flagged" ? "bg-rose-50 text-rose-600" : "bg-gray-50 text-gray-500"}`}
+                      className={`p-3 rounded-xl shadow-sm border border-white/60 ${
+                        job.status === "Clean"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : job.status === "Flagged"
+                            ? "bg-rose-50 text-rose-600"
+                            : "bg-gray-50 text-gray-500"
+                      }`}
                     >
                       {job.status === "Clean" ? (
                         <CheckCircle2 size={20} />
@@ -1090,7 +1093,13 @@ export default function ProfilePage() {
                           {job.target || `Project Target #${index + 1}`}
                         </h4>
                         <span
-                          className={`text-[10px] font-extrabold px-2.5 py-1 rounded-md border ${job.risk === "High" ? "bg-rose-50/50 text-rose-600 border-rose-200" : job.risk === "Medium" ? "bg-amber-50/50 text-amber-600 border-amber-200" : "bg-emerald-50/50 text-emerald-600 border-emerald-200"}`}
+                          className={`text-[10px] font-extrabold px-2.5 py-1 rounded-md border ${
+                            job.risk === "High"
+                              ? "bg-rose-50/50 text-rose-600 border-rose-200"
+                              : job.risk === "Medium"
+                                ? "bg-amber-50/50 text-amber-600 border-amber-200"
+                                : "bg-emerald-50/50 text-emerald-600 border-emerald-200"
+                          }`}
                         >
                           {(job.risk || "Normal").toUpperCase()}
                         </span>
