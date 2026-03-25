@@ -1,19 +1,33 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
+import { useDispatch, useSelector } from "react-redux";
+import {
+  registerUser,
+  clearError,
+  clearMessage,
+} from "../redux/slices/authSlice";
+
 export default function Register() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const {
+    loading,
+    error: reduxError,
+    message,
+  } = useSelector((state) => state.auth);
 
   // Naye state variables password visibility toggle karne ke liye
   const [showPassword, setShowPassword] = useState(false);
@@ -33,14 +47,35 @@ export default function Register() {
       return;
     }
 
-    setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log("Registered:", { firstName, lastName, email, password });
-    }, 2000);
+    dispatch(
+      registerUser({
+        name: `${firstName} ${lastName}`, // ✅ FIX
+        username, // ✅ FIX
+        email,
+        password,
+      }),
+    );
   };
+
+  useEffect(() => {
+    if (reduxError) {
+      setError(reduxError);
+      dispatch(clearError());
+    }
+
+    if (message) {
+      // Reset form
+      setFirstName("");
+      setLastName("");
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+
+      navigate("/verify-email", { state: { email } });
+      dispatch(clearMessage());
+    }
+  }, [reduxError, message, dispatch, navigate, email]);
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-zinc-950 overflow-hidden font-sans py-10">
@@ -178,7 +213,19 @@ export default function Register() {
               />
             </div>
           </div>
-
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Username
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+              placeholder="your_username"
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">
               Email
@@ -312,10 +359,10 @@ export default function Register() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={loading}
             className="relative w-full py-3 px-4 bg-orange-600 hover:bg-orange-500 text-white font-medium rounded-lg shadow-lg shadow-orange-900/20 transition-all disabled:opacity-70 flex justify-center items-center h-11 mt-2"
           >
-            {isLoading ? (
+            {loading ? (
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}

@@ -758,8 +758,8 @@ export default function ProfilePage() {
 
   // --- THE FIX: Declare userData object based on our Redux state
   const userData = {
-    ...profile.data,
-    ...stats.data,
+    ...profile?.data,
+    ...stats?.data,
   };
 
   console.log(userData);

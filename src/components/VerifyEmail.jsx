@@ -3,10 +3,13 @@ import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 import { motion } from "framer-motion";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux"; // ✅ Redux import
+import { verifyEmail } from "../redux/slices/authSlice"; // ✅ Apne authSlice ka sahi path daal lena
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // ✅ Dispatch initialize kiya
 
   // States for our verification process: 'loading', 'success', 'error'
   const [verificationStatus, setVerificationStatus] = useState("loading");
@@ -27,33 +30,29 @@ export default function VerifyEmail() {
       return;
     }
 
-    // Yahan aapki actual Backend API call aayegi (e.g., axios.post('/api/verify-email', { token }))
     const verifyToken = async () => {
       try {
-        const response = await axios.post(
-          "http://localhost:5000/api/auth/verify-email",
-          { token },
-        );
+        // ✅ Redux action dispatch kiya aur .unwrap() lagaya taaki direct response mile
+        const response = await dispatch(verifyEmail(token)).unwrap();
 
-        if (response.data.success) {
-          setVerificationStatus("success");
-          setMessage("Email verified successfully! Welcome aboard.");
-
-          setTimeout(() => {
-            navigate("/login");
-          }, 3000);
-        }
-      } catch (error) {
-        setVerificationStatus("error");
+        setVerificationStatus("success");
+        // Aapke slice ke hisaab se response mein message aayega
         setMessage(
-          error.response?.data?.message ||
-            "Verification link has expired or is invalid.",
+          response.message || "Email verified successfully! Welcome aboard.",
         );
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000);
+      } catch (error) {
+        // ✅ Slice se rejectWithValue ka error yahan aayega
+        setVerificationStatus("error");
+        setMessage(error || "Verification link has expired or is invalid.");
       }
     };
 
     verifyToken();
-  }, [token, navigate]);
+  }, [token, navigate, dispatch]);
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-zinc-950 overflow-hidden font-sans py-10">
