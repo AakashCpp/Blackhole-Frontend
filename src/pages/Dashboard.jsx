@@ -19,6 +19,7 @@ import {
 
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../redux/slices/authSlice";
+import { useNavigate } from "react-router-dom";
 
 /* ===== COLOR MAPS (TAILWIND SAFE) ===== */
 const colorMap = {
@@ -70,6 +71,8 @@ function Dashboard() {
   const admin = "SKY";
   const [collapsed, setCollapsed] = useState(false);
   const [active, setActive] = useState("profile");
+
+  const navigate = useNavigate();
 
   const navItems = [
     { id: "profile", label: "Profile", icon: User, color: "green" },
@@ -237,6 +240,7 @@ function Dashboard() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
                       transition={smooth}
+                      onClick={() => navigate("/")}
                     >
                       Landing
                     </motion.span>

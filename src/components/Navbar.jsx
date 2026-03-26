@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [open, setOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   return (
     <div className="relative">
@@ -102,11 +105,11 @@ function Navbar() {
             exit={{ opacity: 0, y: -10, x: 20 }}
             transition={{ duration: 0.3 }}
           >
-            <NavItem text="Home" />
-            <NavItem text="About" />
-            <NavItem text="UrlScan" />
-            <NavItem text="Public Scan" />
-            <NavItem text="Dashboard" />
+            <NavItem text="Home" value="/" />
+            <NavItem text="About" value="/about" />
+            <NavItem text="UrlScan" value="/phishingPage" />
+            <NavItem text="Public Scan" value="/scans" />
+            <NavItem text="Dashboard" value="/dashboard" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -114,9 +117,13 @@ function Navbar() {
   );
 }
 
-function NavItem({ text }) {
+function NavItem({ text, value }) {
+  const navigate = useNavigate();
   return (
-    <div className="text-orange-400 hover:text-orange-300 cursor-pointer transition">
+    <div
+      onClick={() => navigate(`${value}`)}
+      className="text-orange-400 hover:text-orange-300 cursor-pointer transition"
+    >
       {text}
     </div>
   );
